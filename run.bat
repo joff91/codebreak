@@ -1,0 +1,1 @@
+"C:\Program Files (x86)\OpenSesame\opensesamerun.exe" "C:\Users\Joff\Documents\OneDrive for Business\1 University\0 PhD\Training Programmes\AVS\OpenSesame\practice.osexp" -s 99 -l "C:\Users\Joff\Documents\OneDrive for Business\1 University\0 PhD\Training Programmes\AVS\OpenSesame\7937" -f

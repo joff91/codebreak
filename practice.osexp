@@ -1,43 +1,43 @@
 ---
 API: 2
-OpenSesame: 3.0.7b1
-Platform: posix
+OpenSesame: 3.0.6
+Platform: nt
 ---
 set width 1024
-set uniform_coordinates yes
+set uniform_coordinates "yes"
 set title "Tutorial-1"
-set subject_parity even
+set subject_parity "even"
 set subject_nr 0
-set start experiment
-set sampler_backend legacy
-set mouse_backend legacy
-set keyboard_backend legacy
+set start "experiment"
+set sampler_backend "legacy"
+set mouse_backend "legacy"
+set keyboard_backend "legacy"
 set height 768
 set foreground "#ffffff"
 set font_size 20
-set font_italic no
-set font_family mono
-set font_bold no
-set experiment_path "/home/paul/src/codebreak"
+set font_italic "no"
+set font_family "mono"
+set font_bold "no"
+set experiment_path "C:\Users\Joff\Documents\OneDrive for Business\1 University\0 PhD\Training Programmes\AVS\OpenSesame"
 set description "Gaze Cuing Experiment"
-set coordinates uniform
+set coordinates "uniform"
 set compensation 0
-set color_backend legacy
-set clock_backend legacy
-set canvas_backend legacy
-set bidi no
+set color_backend "legacy"
+set clock_backend "legacy"
+set canvas_backend "legacy"
+set bidi "no"
 set background "#000000"
 
 define loop BlockLoop
 	set skip 0
 	set repeat 1
-	set order random
-	set offset no
-	set item TrialSequence
+	set order "random"
+	set offset "no"
+	set item "TrialSequence"
 	set description "Repeatedly runs another item"
 	set cycles 4
 	set column_order "target_position;target_letter;distracter_pos;correct_response;gaze_cue"
-	set break_if never
+	set break_if "never"
 	setcycle 0 target_position "-300"
 	setcycle 0 correct_response "z"
 	setcycle 0 distracter_pos "300"
@@ -61,36 +61,35 @@ define loop BlockLoop
 	run TrialSequence
 
 define sequence BlockSequence
-	set flush_keyboard yes
+	set flush_keyboard "yes"
 	set description "Runs a number of items in sequence"
 	run ResetFeedback always
 	run BlockLoop always
-	run ac always
 	run calculate_block always
 	run Feedback always
 
 define form_text_display EndOfExperiment
-	set timeout infinite
+	set timeout "infinite"
 	set spacing 10
 	set rows "1;4;1"
-	set only_render no
-	set ok_text Ok
+	set only_render "no"
+	set ok_text "Ok"
 	set margins "50;50;50;50"
 	set form_title "<span size=24>Title</span>"
-	set form_text "The experiment is finished."
+	set form_text "The experiment has finished."
 	set description "A simple text display form"
 	set cols "1;1;1"
-	set _theme gray
+	set _theme "gray"
 	widget 0 0 3 1 label text="[form_title]"
 	widget 0 1 3 1 label center=no text="[form_text]"
 	widget 1 2 1 1 button text="[ok_text]"
 
 
 define feedback Feedback
-	set reset_variables yes
-	set duration keypress
+	set reset_variables "yes"
+	set duration "keypress"
 	set description "Provides feedback to the participant"
-	draw textline center=1 color="#ffffff" font_bold=no font_family=mono font_italic=no font_size=24 html=yes show_if=always text="End of block [=block]<br /><br />Your average response time was [avg_rt]ms<br /><br />Your average accuracy was [=ac]%<br /><br />Press any key to continue." x=0 y=0 z_index=0
+	draw textline center=1 color="#ffffff" font_bold=no font_family=mono font_italic=no font_size=24 html=yes show_if=always text="End of block [block]<br /><br />Your average response time was [avg_rt]ms<br /><br />Your average accuracy was [acc]%<br /><br />Press any key to continue." x=0 y=0 z_index=0
 	draw textline center=1 color=black font_bold=no font_family=mono font_italic=no font_size=24 html=yes show_if=always text="Round: [=round]" x=0 y=-288 z_index=0
 
 define sketchpad Fixation_Dot
@@ -98,15 +97,16 @@ define sketchpad Fixation_Dot
 	set description "Displays stimuli"
 	draw fixdot color=white show_if=always style=default x=0 y=0 z_index=0
 	draw fixdot color=black show_if=always style=default x=0 y=0 z_index=0
+	draw fixdot color="#ffffff" show_if=always style=default x=0 y=0 z_index=0
 
 define form_text_display Instructions
-	set timeout infinite
+	set timeout "infinite"
 	set spacing 10
 	set rows "1;4;1"
-	set only_render no
-	set ok_text Ok
+	set only_render "no"
+	set ok_text "Ok"
 	set margins "50;50;50;50"
-	set form_title Instructions
+	set form_title "Instructions"
 	__form_text__
 	If you see an F press Z
 	
@@ -114,7 +114,7 @@ define form_text_display Instructions
 	__end__
 	set description "A simple text display form"
 	set cols "1;1;1"
-	set _theme gray
+	set _theme "gray"
 	widget 0 0 3 1 label text="[form_title]"
 	widget 0 1 3 1 label center=no text="[form_text]"
 	widget 1 2 1 1 button text="[ok_text]"
@@ -123,20 +123,20 @@ define form_text_display Instructions
 define loop PracticeLoop
 	set skip 0
 	set repeat 1
-	set order random
-	set offset no
-	set item BlockSequence
+	set order "random"
+	set offset "no"
+	set item "BlockSequence"
 	set description "Repeatedly runs another item"
 	set cycles 1
 	set column_order ""
-	set break_if never
+	set break_if "never"
 	run BlockSequence
 
 define reset_feedback ResetFeedback
 	set description "Resets the feedback variables, such as 'avg_rt' and 'acc'"
 
 define sequence TrialSequence
-	set flush_keyboard yes
+	set flush_keyboard "yes"
 	set description "Runs a number of items in sequence"
 	run Fixation_Dot always
 	run neutral_gaze always
@@ -146,35 +146,20 @@ define sequence TrialSequence
 	run incorrect_sound "[correct]=0"
 	run logger always
 
-define inline_script ac
-	set description "Executes Python code"
-	___run__
-	# Create new experimental variable
-	var.ac = 'ac'
-	
-	# Calculate ac
-	ac = var.acc
-	__end__
-	set _prepare ""
-
 define inline_script calculate_block
 	set description "Executes Python code"
 	___run__
 	# Define new experimental variable called 'block'
-	var.block = 'block'
-	
-	# Calculate block 
-	block = var.count_BlockLoop + 1
+	var.set('block', (var.count_BlockLoop + 1))
 	__end__
 	set _prepare ""
 
 define sequence experiment
-	set flush_keyboard yes
+	set flush_keyboard "yes"
 	set description "Runs a number of items in sequence"
 	run session always
-	run retrieve_subject_name always
-	run new_sketchpad always
-	run insert_name always
+	run retrieve_variables always
+	run welcome always
 	run Instructions always
 	run PracticeLoop always
 	run EndOfExperiment always
@@ -191,117 +176,55 @@ define sampler incorrect_sound
 	set pitch 1
 	set pan 0
 	set fade_in 0
-	set duration sound
+	set duration "sound"
 	set description "Plays a sound file in .wav or .ogg format"
-
-define form_text_input insert_name
-	set timeout infinite
-	set spacing 10
-	set rows "1;1;6"
-	set only_render no
-	set margins "50;50;50;50"
-	set form_var subject_name
-	set form_title Name
-	set form_question "Insert your name below"
-	set description "A simple text input form"
-	set cols 1
-	set _theme gray
-	widget 0 0 1 1 label text="[form_title]"
-	widget 0 1 1 1 label center=no text="[form_question]"
-	widget 0 2 1 1 text_input focus=yes return_accepts=yes stub="" var="[form_var]"
-
 
 define keyboard_response keyboard_response
 	set timeout 2000
-	set flush yes
-	set duration keypress
+	set flush "yes"
+	set duration "keypress"
 	set description "Collects keyboard responses"
 	set allowed_responses "z;m"
 
 define logger logger
 	set description "Logs experimental data"
-	set auto_log yes
+	set auto_log "yes"
 
 define sketchpad neutral_gaze
 	set duration 745
 	set description "Displays stimuli"
 	draw image center=1 file="gaze_neutral.png" scale=1 show_if=always x=0 y=0 z_index=0
 
-define sketchpad new_sketchpad
-	set duration keypress
-	set description "Displays stimuli"
-	draw textline center=1 color="#ffffff" font_bold=no font_family=mono font_italic=no font_size=22 html=yes show_if=always text="Hello!<br /><br />In the previous session:<br /><br />Your average accuracy was ac%.<br /><br />Your reaction time on the first trial was avg_rt." x=0 y=0 z_index=0
-
-define inline_script retrieve_data
-	set description "Executes Python code"
-	set _run ""
-	___prepare__
-	
-	import os
-	
-	# Find previous data file and read in
-	for session_nr in range(0, 1000):
-		path = '%d-%d.csv' % (self.get('subject_nr'), session_nr)
-		if not os.path.exists(path):
-			break
-	print 'Using %s' % path
-	exp.logfile = path
-	
-	# Define previous_acc variable 
-	var.previous_acc = 'previous_acc'
-	previous_acc = var.avg_rt
-	__end__
-
-define inline_script retrieve_data_1
+define inline_script retrieve_variables
 	set description "Executes Python code"
 	set _run ""
 	___prepare__
 	# Import csv module
 	import csv
 	
-	# Define previous session
-	var.previous_ses = 'previous_ses'
-	previous_ses = session_nr - 1
+	# For sessions 2-25
+	if var.session_nr > 1:
 	
-	# Read csv file into a list, with one entry per row 
-	with open(('%d-%d.csv', 'rb') % (subject_nr, previous_ses)) as previous_data:
-		data_reader = csv.reader(previous_data, delimiter=',')
-		contents = [row for row in data_reader]
+	# Read previous session csv file into a list of lists, with one list per row
+		with open (r'C:\Users\Joff\Documents\OneDrive for Business\1 University\0 PhD\Training Programmes\AVS\OpenSesame\%d-%d.csv' % (var.subject_nr, (var.session_nr - 1)), 'rb') as previous_data:
+			data_reader = csv.reader(previous_data, delimiter=',')
+			contents = [row for row in data_reader]
 	
-	# Make a list of dict items, with column names from the top of the csv
-	# file as keys, and the subsequent columns as values
-	col_names = contents[0]
-	stimuli = [dict(zip(col_names, row)) for row in contents[1:]]
-	
-	# Transform stimuli to OpenSesame variables
-	for i in range (len(stimuli)):
-		trial = stimuli[i]
-		var.set(('avg_rt_%d') % (int(trial['avg_rt'])))
-	
-	# Find total correct trials
-	__end__
-
-define inline_script retrieve_subject_name
-	set description "Executes Python code"
-	set _run ""
-	___prepare__
-	# Import csv module
-	import csv
-	
-	# Read previous session csv file into a list, with one entry per row 
-	with open ('%d-%d.csv' % (var.subject_nr, (var.session_nr - 1)), 'rb') as previous_data:
-		data_reader = csv.reader(previous_data, delimiter=',')
-		contents = [row for row in data_reader]
-	
-	# Make a list of dict items, with column names from the top of the csv
-	# file as keys, and the subsequent columns as values
-	col_names = contents[0]
-	stimuli = [dict(zip(col_names, row)) for row in contents[1:]]
+	# Make a list of dict items (for each row of data)
+	# with column names from the top of the csv file as keys, 
+	# and the subsequent rows as values
+		col_names = contents[0]
+		stimuli = [dict(zip(col_names, row)) for row in contents[1:]]
 	
 	# Transform stimuli to OpenSesame variables
-	for i in range (len(stimuli)):
-		trial = stimuli[i]
-		var.set(('avg_rt_%i') % i, int(trial['avg_rt']))
+		var.set('prev_acc', (stimuli[len(stimuli)-1]['acc']))
+		var.set('prev_rt', (stimuli[len(stimuli)-1]['avg_rt']))
+	
+	# Set default values for session 1 so that it runs
+	# Use 'run if' statements for sketchpad items in actual experiment
+	else:
+		var.set('prev_acc', 'NA')
+		var.set('prev_rt', 'NA')
 	__end__
 
 define inline_script session
@@ -331,7 +254,13 @@ define sketchpad target
 	set duration 0
 	set description "Displays stimuli"
 	draw image center=1 file="gaze_[gaze_cue].png" scale=1 show_if=always x=0 y=0 z_index=0
-	draw textline center=1 color=black font_bold=no font_family=mono font_italic=no font_size=32 html=yes show_if=always text="[target_letter]" x=288 y=0 z_index=0
+	draw textline center=1 color=white font_bold=no font_family=mono font_italic=no font_size=32 html=yes show_if=always text="[target_letter]" x=288 y=0 z_index=0
 	draw textline center=1 color=white font_bold=no font_family=mono font_italic=no font_size=32 html=yes show_if=always text="" x="[distracter_pos]" y=0 z_index=0
-	draw textline center=1 color=black font_bold=no font_family=mono font_italic=no font_size=32 html=yes show_if=always text=X x="[target_position]" y=0 z_index=0
+	draw textline center=1 color="#ffffff" font_bold=no font_family=mono font_italic=no font_size=32 html=yes show_if=always text=X x="[target_position]" y=0 z_index=0
+
+define sketchpad welcome
+	set duration "keypress"
+	set description "Displays stimuli"
+	draw textline center=1 color="#ffffff" font_bold=no font_family=mono font_italic=no font_size=22 html=yes show_if=always text="Hello!<br /><br />In the previous session:<br /><br />Your average accuracy in the last session was [prev_acc]%.<br /><br />Your average reaction time in the last session was [prev_rt]ms." x=0 y=0 z_index=0
+	draw textline center=1 color="#ffffff" font_bold=no font_family=mono font_italic=no font_size=22 html=yes show_if=always text="Press any key to continue" x=0 y=288 z_index=0
 
