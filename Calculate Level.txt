@@ -1,0 +1,50 @@
+Dim PercentScore As Double
+PercentScore = (SearchScore/24)*100
+c.SetAttrib "LevelNum", SubjectLevel
+If PercentScore > 0 Then
+	PercentScore = Format$(PercentScore,"##.#")
+	c.SetAttrib "Score", PercentScore
+End If
+
+FeedbackText.text = "You were " & PercentScore & "% accurate on the previous block of trials. \n \n Please press the spacebar to continue."
+If SearchScore > 20 Then
+	If SubjectLevel = 68 Then
+		SubjectLevel = SubjectLevel
+		FeedbackString = "Based on your performance, you will remain at \n \n Level " & SubjectLevel & "\n \n Ready? \n \n Please press the spacebar to continue."
+	Else
+		If SubjectLevel > CurrentHighestLevel Then
+			CurrentHighestLevel = SubjectLevel
+			If PreviousHighestLevel < 10 And SubjectLevel < 10 Then
+				BeatLevelUnder10(SubjectLevel)=True
+			ElseIf PreviousHighestLevel > 8 Then
+				BeatLevelOver10=True
+			End If
+		End If
+	If SubjectLevel >= PreviousAverageLevel Then
+		BeatAverage = True
+		End If
+	End If
+	If HighestThisSession < SubjectLevel Then
+		HighestThisSession = SubjectLevel
+	End If
+	SubjectLevel = SubjectLevel + 1
+	FeedbackString = "Based on your performance, you have advanced to \n \n Level " & SubjectLevel & "\n \n Ready? \n \n Please press the spacebar to continue."
+ElseIf SearchScore <19 Then
+	If SubjectLevel > 1 Then	
+		SubjectLevel = SubjectLevel - 1
+		FeedbackString = "Based on your performance, you have decreased to \n \n Level " & SubjectLevel & "\n \n Ready? \n \n Please press the spacebar to continue."
+	Else
+		SubjectLevel = SubjectLevel
+		FeedbackString = "Based on your performance, you will remain at \n \n Level " & SubjectLevel & "\n \n Ready? \n \n Please press the spacebar to continue."
+	End If
+Else
+	SubjectLevel = SubjectLevel
+	FeedbackString = "Based on your performance, you will remain at \n \n Level " & SubjectLevel & "\n \n Ready? \n \n Please press the spacebar to continue."
+End If
+
+BlockNumber = BlockNumber + 1
+
+finalLevel = SubjectLevel
+If finalLevel > HighestThisSession Then
+	HighestThisSession = finalLevel
+End If

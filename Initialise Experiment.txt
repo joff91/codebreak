@@ -1,0 +1,11 @@
+BlockNumber = 1
+'PreviousAverageLevel = c.GetAttrib("PreviousAverageLevel")
+BeatAverage = False
+'PreviousHighestLevel=c.GetAttrib("CurrentHighest")
+'CurrentHighestLevel = PreviousHighestLevel
+BeatLevelOver10=False
+HighestThisSession = 1
+Dim p As Integer
+For p = 1 To 9
+	BeatLevelUnder10(p)=False
+Next p

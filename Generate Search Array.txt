@@ -1,0 +1,104 @@
+
+Set offscreencnvs = Display.CreateCanvas
+offscreencnvs.BackStyle = "transparent"
+
+Dim i As Integer
+Dim j As Integer
+Dim x As Integer
+Dim y As Integer
+
+
+Dim VisualSearchArray(512) As String
+Dim Distractors(4) As String
+Dim TotalSize As Integer
+Dim Target As Integer
+Dim CorrectAnswer(2) As String
+
+CellWidth = 40
+CellHeight = 40
+xMargin = 512 - (20)
+yMargin = 384 - (20)
+CellSpacing = CellWidth
+intMaxRows = 2
+intMaxCols = 2
+offscreencnvs.PenWidth = 2
+offscreencnvs.PenColor = CColor ("black")
+
+x = xMargin
+y = yMargin
+
+j = 2
+i = 2
+
+TotalSize = i*j
+
+Dim SearchArray (TotalSize) As String
+Dim n As Integer
+n = 1
+
+Distractors(1)="NormalE"
+Distractors(2)="MirrorE"
+Distractors(3)="LeftT"
+Distractors(4)="RightT"
+CorrectAnswer(1)="NormalF"
+CorrectAnswer(2)="MirrorF"
+
+For n = 1 To TotalSize
+	randomizearray Distractors,1,4
+	SearchArray(n)=Distractors(1)
+Next n
+
+randomizearray CorrectAnswer,1,2
+
+Target = random(1,TotalSize)
+SearchArray(Target)=CorrectAnswer(1)
+
+If CorrectAnswer(1) = "NormalF" Then
+	c.SetAttrib "CorrectAns", "{,}"
+ElseIf CorrectAnswer(1) = "MirrorF" Then
+	c.SetAttrib "CorrectAns", "z"
+End If
+
+For j = 1 To intMaxRows
+	For i = 1 To intMaxCols
+		If SearchArray(((j-1)*intMaxCols)+i) = "NormalE" Then
+			offscreencnvs.Line x, y, x, y+20
+			offscreencnvs.Line x, y, x+10, y
+			offscreencnvs.Line x, y+10, x+10, y+10
+			offscreencnvs.Line x, y+21, x+10, y+21
+			x = x + CellSpacing
+		ElseIf SearchArray(((j-1)*intMaxCols)+i) = "MirrorE" Then
+			offscreencnvs.Line x+11, y, x+11, y+20
+			offscreencnvs.Line x, y, x+10, y
+			offscreencnvs.Line x, y+10, x+10, y+10
+			offscreencnvs.Line x, y+21, x+10, y+21
+			x = x + CellSpacing
+		ElseIf  SearchArray(((j-1)*intMaxCols)+i) = "NormalF" Then
+			offscreencnvs.Line x, y, x, y+20
+			offscreencnvs.Line x, y, x+10, y
+			offscreencnvs.Line x, y+10, x+10, y+10
+			x = x + CellSpacing
+		ElseIf SearchArray(((j-1)*intMaxCols)+i) = "MirrorF" Then
+			offscreencnvs.Line x+11, y, x+11, y+20
+			offscreencnvs.Line x, y, x+10, y
+			offscreencnvs.Line x, y+10, x+10, y+10
+			x = x + CellSpacing
+		ElseIf SearchArray(((j-1)*intMaxCols)+i) = "LeftT" Then
+			offscreencnvs.Line x, y, x, y+20
+			offscreencnvs.Line x, y+10, x+10, y+10
+			x = x + CellSpacing
+		ElseIf SearchArray(((j-1)*intMaxCols)+i) = "RightT" Then
+			offscreencnvs.Line x+11, y, x+11, y+20
+			offscreencnvs.Line x, y+10, x+10, y+10
+			x = x + CellSpacing
+		End If
+		If i = intMaxCols Then
+			y = y + CellSpacing
+			x = xMargin
+		End If
+	Next i
+Next j
+
+Set cnvs = Display.canvas
+cnvs.BackStyle = "transparent"
+cnvs.copy offscreencnvs

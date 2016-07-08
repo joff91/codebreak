@@ -160,6 +160,7 @@ define sequence experiment
 	run session always
 	run retrieve_variables always
 	run welcome always
+	run generate_array_1 always
 	run Instructions always
 	run PracticeLoop always
 	run EndOfExperiment always
@@ -168,6 +169,116 @@ define sketchpad gaze_cue
 	set duration 495
 	set description "Displays stimuli"
 	draw image center=1 file="gaze_[gaze_cue].png" scale=1 show_if=always x=0 y=0 z_index=0
+
+define inline_script generate_array_1
+	set description "Generate a random array of distracters and a target"
+	___run__
+	t0 = c.show()
+	var.response, t1 = kb.get_key()
+	var.response_time = t1-t0
+	log.write_vars()
+	__end__
+	___prepare__
+	import random
+	
+	# Create canvas called c
+	c = canvas(color='green', penwidth=2)
+	print('Canvas size is:', c.size)
+	
+	# Set starting values for col and row variables
+	max_cols = 2
+	max_rows = 2
+	total_size = max_cols*max_rows
+	i, j = max_cols, max_rows
+	search_array = [[None] * i for n in range (j)]
+	print('Empty search array:', search_array)
+	
+	# Set lists for distractors and targets
+	distractors = ['normal_e', 'mirror_e', 'left_t', 'right_t']
+	targets = ['normal_f', 'mirror_f']
+	
+	# Randomly select distractors to fill search array
+	# and then replace one distractor with a random target
+	for N in range (max_rows):
+		for n in range (max_cols):
+			search_array[N][n] = random.choice(distractors)
+	
+	# !!!!!Set target variable var.random.choice(targets) = 'target'
+	search_array[random.randint(0, (max_rows-1))][random.randint(0, (max_cols-1))] = random.choice(targets)
+	print('The randomised search array is:', search_array)
+	
+	# Working up to this point
+	
+	# Draw letters in search array in a grid
+	x = (max_cols-1)*(-20) - 5
+	y = (max_rows-1)*(-20) - 5
+	for w in range (max_rows):
+		for v in range (max_cols):
+			if search_array[w][v] == 'normal_e':
+				c.line(x, y, x, y+20)
+				c.line(x, y, x+10, y)
+				c.line(x, y+10, x+10, y+10)
+				c.line(x, y+21, x+10, y+21)
+				x = x + 40
+			elif search_array[w][v] == 'mirror_e':
+				c.line(x+11, y, x+11, y+20)
+				c.line(x, y, x+10, y)
+				c.line(x, y+10, x+10, y+10)
+				c.line(x, y+21, x+10, y+21)
+				x = x + 40
+			elif search_array[w][v] == 'left_t':
+				c.line(x, y, x, y+20)
+				c.line(x, y+10, x+10, y+10)
+				x = x + 40
+			elif search_array[w][v] == 'right_t':
+				c.line(x+11, y, x+11, y+20)
+				c.line(x, y+10, x+10, y+10)
+				x = x + 40
+			elif search_array[w][v] == 'normal_f':
+				c.line(x, y, x, y+20)
+				c.line(x, y, x+10, y)
+				c.line(x, y+10, x+10, y+10)
+				x = x + 40
+			elif search_array[w][v] == 'mirror_f':
+				c.line(x+11, y, x+11, y+20)
+				c.line(x, y, x+10, y)
+				c.line(x, y+10, x+10, y+10)
+				x = x + 40
+			if v == max_cols:
+				y = y +40
+				x = (max_cols-1)*(-20) - 5
+	
+	# Create keyboard response
+	kb = keyboard(keylist=['left', 'right'])
+	__end__
+
+define inline_script generate_array_xy_grid
+	set description "Generate a random array of distracters and a target"
+	___run__
+	c.show()
+	clock.sleep(2000)
+	__end__
+	___prepare__
+	# Create canvas called c
+	c = canvas(color='green', penwidth=2)
+	
+	# Set values for i and j
+	i = 3
+	j = 2
+	
+	# Draw letter E's in the grid
+	for x,y in xy_grid((i, j), 40):
+		if (1,1):
+			c.line(x, y, x, y+20)
+			c.line(x, y, x+10, y)
+			c.line(x, y+10, x+10, y+10)
+			c.line(x, y+21, x+10, y+21)
+		else:
+			c.line(x+11, y, x+11, y+20)
+			c.line(x, y, x+10, y)
+			c.line(x, y+10, x+10, y+10)
+			c.line(x, y+21, x+10, y+21)
+	__end__
 
 define sampler incorrect_sound
 	set volume 1
