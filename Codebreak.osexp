@@ -1,0 +1,697 @@
+---
+API: 2
+OpenSesame: 3.1.1
+Platform: nt
+---
+set width 1024
+set uniform_coordinates yes
+set title "Code Break"
+set subject_parity even
+set subject_nr 0
+set start visual_search_training
+set sound_freq 48000
+set sampler_backend legacy
+set mouse_backend legacy
+set keyboard_backend legacy
+set height 768
+set foreground green
+set font_size 20
+set font_italic no
+set font_family mono
+set font_bold no
+set experiment_path "C:/Users/Joff/Documents/GitHub/codebreak"
+set description "Default description"
+set coordinates uniform
+set compensation 0
+set color_backend legacy
+set clock_backend legacy
+set canvas_backend legacy
+set bidi no
+set background black
+
+define synth Correct_sound
+	set volume 1
+	set pan 0
+	set osc sine
+	set length 100
+	set freq 440
+	set duration sound
+	set description "A basic sound synthesizer"
+	set decay 50
+	set attack 50
+
+define synth Correct_sound_2
+	set volume 1
+	set pan 0
+	set osc sine
+	set length 100
+	set freq 440
+	set duration sound
+	set description "A basic sound synthesizer"
+	set decay 50
+	set attack 50
+
+define sketchpad F
+	set duration 0
+	set description "Displays stimuli"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="If you see a F pointing to the right like this..." x=0 y=-96 z_index=0
+	draw image center=1 file="F.bmp" scale=1 show_if=always x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="You should press the RIGHT ARROW.<br /><br /><br />Press that key now." x=0 y=128 z_index=0
+
+define synth Incorrect_sound
+	set volume 0.5
+	set pan 0
+	set osc square
+	set length 100
+	set freq C0
+	set duration sound
+	set description "A basic sound synthesizer"
+	set decay 50
+	set attack 50
+
+define synth Incorrect_sound_2
+	set volume 0.5
+	set pan 0
+	set osc square
+	set length 100
+	set freq C0
+	set duration sound
+	set description "A basic sound synthesizer"
+	set decay 50
+	set attack 50
+
+define sketchpad Intro
+	set duration 0
+	set description "Displays stimuli"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=sans font_italic=no font_size=70 html=yes show_if=always text="Welcome to Code Break" x=0 y=-32 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+
+define sketchpad Intro_1
+	set duration 0
+	set description "Displays stimuli"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="MI6 - Her Majesty's Secret Intelligence Service - <br /><br />have recently discovered a number of computers across the country.<br /><br /><br />The computers have been encrypted with a high-tech code<br /><br />which prevents anyone from accessing the information within.<br /><br /><br />MI6 have hired you to help them break the code!" x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+
+define loop block_loop
+	set source_file ""
+	set source table
+	set skip 0
+	set repeat 1
+	set order random
+	set offset no
+	set item trial_sequence
+	set description "Repeatedly runs another item"
+	set cycles 1
+	set continuous no
+	set column_order ""
+	set break_if_on_first yes
+	set break_if never
+	setcycle 0 empty_column ""
+	run trial_sequence
+
+define inline_script calculate_level
+	set description "Executes Python code"
+	___run__
+	var.highest_level = 'highest_level'
+	
+	#Calculate block
+	var.block = 'block'
+	block = var.count_block_loop
+	__end__
+	set _prepare ""
+
+define logger data_logger
+	set description "Logs experimental data"
+	set auto_log yes
+
+define sketchpad difficult_trial
+	set duration 0
+	set description "Displays stimuli"
+	draw image center=1 file="HardLetters.bmp" scale=1 show_if=always x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="A difficult trial might look like this...<br /><br />Can you find the F?" x=0 y=-288 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="You should press the RIGHT ARROW because the F is pointing to the right.<br /><br />Press the RIGHT ARROW now." x=0 y=288 z_index=0
+
+define sketchpad difficulty
+	set duration 0
+	set description "Displays stimuli"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="It may sound easy, but breaking the code will be difficult.<br /><br />The code is only shown for a very short amount of time.<br /><br /><br /><br />The difficulty of the code will change depending on how well you are doing. <br /><br />On higher levels there will be more letters and shapes to distract you!<br /><br /><br /><br />If you successfully break enough code, you will progress to the next level.<br /><br />But! <br /><br />If you fail to break enough code, you will go back to the previous level. " x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+
+define sketchpad distracters
+	set duration 0
+	set description "Displays stimuli"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="In the code, there will be distracting letters and shapes.<br /><br /><br />They will look like this..." x=0 y=-128 z_index=0
+	draw textline center=1 color=black font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=always text="" x=0 y=64 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+	draw image center=1 file="RightT.bmp" scale=1 show_if=always x=-64 y=0 z_index=0
+	draw image center=1 file="E.bmp" scale=1 show_if=always x=192 y=0 z_index=0
+	draw image center=1 file="MirrorE.bmp" scale=1 show_if=always x=64 y=0 z_index=0
+	draw image center=1 file="LeftT.bmp" scale=1 show_if=always x=-192 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="These will make the job of finding the F more difficult." x=0 y=128 z_index=0
+
+define sketchpad easy_trial
+	set duration 0
+	set description "Displays stimuli"
+	draw image center=1 file="EasyLetters.bmp" scale=1 show_if=always x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="On an easy level, the code might look like this..." x=0 y=-128 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="You should press the RIGHT ARROW because the F is pointing to the right.<br /><br /><br />Press the RIGHT ARROW now." x=0 y=160 z_index=0
+
+define sequence end
+	set flush_keyboard yes
+	set description "Runs a number of items in sequence"
+	run retrieve_highscore always
+	run highscore_1 "[highest_level] > [high_score]"
+	run highscore_2 "[highest_level] < [high_score]"
+	run spacebar always
+	run summary always
+	run spacebar always
+
+define sequence feedback_sequence
+	set flush_keyboard yes
+	set description "Runs a number of items in sequence"
+	run calculate_level always
+	run level_down_1 "[acc]<75"
+	run level_remain_1 "75<=[acc] and [acc]<87.5"
+	run level_up_1 "[acc]>=87.5"
+	run spacebar always
+
+define sketchpad fixation_1
+	set duration 495
+	set description "Displays stimuli"
+	draw fixdot color="#00ff00" show_if=always style=default x=0 y=0 z_index=0
+
+define sketchpad fixation_1_2
+	set duration 495
+	set description "Displays stimuli"
+	draw fixdot color="#00ff00" show_if=always style=default x=0 y=0 z_index=0
+
+define inline_script generate_array
+	set description "Generates visual search array"
+	___run__
+	# Show search array canvas for 500ms
+	t0 = c.show()
+	clock.sleep(500)
+	
+	# Show mask and set keyboard to right,left
+	t1 = mask.show()
+	var.response, t2 = kb.get_key()
+	var.response_time = t2 - t1
+	if var.response == var.correct_response:
+		var.correct = 1
+	else:
+		var.correct = 0
+		
+	log.write_vars()
+	__end__
+	___prepare__
+	import random
+	
+	# Create canvas called c
+	c = canvas(color='green', penwidth=2)
+	print('Canvas size is:', c.size)
+	
+	# Set starting values for col and row variables
+	i = 6
+	j = 6
+	
+	# Create empty list with lenght i*j
+	search_list = [None]*(i*j)
+	print('Empty search list:', search_list)
+	
+	# Set lists for distractors and targets
+	distractors = ['normal_e', 'mirror_e', 'left_t', 'right_t']
+	targets = ['normal_f', 'mirror_f']
+	
+	# Randomly select distractors to fill search array
+	# and then replace one distractor with a random target
+	for n in range (i*j):
+		search_list[n] = random.choice(distractors)
+	
+	# Set target variable and randomly select a target F to fill a random position
+	# in the array
+	var.target = 'target'
+	var.target = random.choice(targets)
+	search_list[random.randint(0, i*j-1)] = var.target
+	print('The randomised search array is:', search_list)
+	
+	# Set correct_response variable
+	if var.target == 'normal_f':
+		var.correct_response = 'right'
+	elif var.target == 'mirror_f':
+		var.correct_response = 'left'
+		
+	# Create empty search array
+	search_array = xy_grid((i, j), 40)
+	
+	# Combine the stimuli with the search array
+	for z, (x, y) in zip (search_list, search_array):
+		x = x-11
+		if z == 'normal_e':
+			c.line(x, y, x, y+20)
+			c.line(x, y, x+12, y)
+			c.line(x, y+10, x+12, y+10)
+			c.line(x, y+20, x+12, y+20)
+		elif z == 'mirror_e':
+			c.line(x+11, y, x+11, y+20)
+			c.line(x, y, x+12, y)
+			c.line(x, y+10, x+12, y+10)
+			c.line(x, y+20, x+12, y+20)
+		elif z == 'right_t':
+			c.line(x, y, x, y+20)
+			c.line(x, y+10, x+12, y+10)
+		elif z == 'left_t':
+			c.line(x+11, y, x+11, y+20)
+			c.line(x, y+10, x+10, y+10)
+		elif z == 'normal_f':
+			c.line(x, y, x, y+20)
+			c.line(x, y, x+12, y)
+			c.line(x, y+10, x+12, y+10)
+		elif z == 'mirror_f':
+			c.line(x+11, y, x+11, y+20)
+			c.line(x, y, x+12, y)
+			c.line(x, y+10, x+10, y+10)
+			
+	# Draw mask canvas
+	mask = canvas()
+	path = r'C:\Users\Joff\Documents\OneDrive for Business\OpenSesame\Code Break Bitmaps\mask-ORIGINAL.bmp'
+	mask.image(path)
+	
+	# Create keyboard object
+	kb = keyboard(keylist=['right', 'left'], timeout=2495)
+	__end__
+
+define inline_script generate_array_2
+	set description "Generates visual search array"
+	set _run ""
+	set _prepare ""
+
+define sketchpad highscore_1
+	set duration 8000
+	set description "Displays stimuli"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="The highest level you achieved this time was Level highest_level.<br /><br /><br />Unlucky! You didn't manage to beat your highscore this time. <br /><br /><br />Try again next time.<br /><br /><br />Your current highscore is Level high_score." x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+
+define sketchpad highscore_2
+	set duration 8000
+	set description "Displays stimuli"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="The highest level you achieved this time was Level highest_level.<br /><br /><br />!!! Congratulations you achieved a new high score !!!<br /><br /><br />Your new highscore is Level highest_level." x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+
+define sketchpad instruct10
+	set duration keypress
+	set description "Present previous level and highscore if not the 1st training session"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="The highest level you have achieved so far is Level highest_level. <br /><br />See if you can beat your highscore this time!<br /><br />We will start where you finished last time, which was Level previous_level. <br /><br /><br /><br />Remember:<br /><br />If the F is facing to the right, press the RIGHT ARROW.<br /><br />If the F is facing to the left, press the LEFT ARROW.<br /><br /><br />Good Luck!<br /><br />" x=0 y=32 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to start today's training session." x=0 y=320 z_index=0
+
+define sketchpad instruct10_1
+	set duration 0
+	set description "Present previous level and highscore if not the 1st training session"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Remember:<br /><br />If the F is facing to the right, press the RIGHT ARROW.<br /><br />If the F is facing to the left, press the LEFT ARROW.<br /><br /><br />Good Luck!<br /><br />" x=0 y=32 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to start today's training session." x=0 y=320 z_index=0
+
+define sketchpad instructions
+	set duration 0
+	set description "Displays stimuli"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Before you can help MI6 you need to learn how to use the Codebreaker.<br /><br /><br />In the Codebreaker you will see a piece of code. <br /><br />The code contains one letter F as well as some other shapes and letters.<br /><br /><br />The F will either point to the right or it will point to the left.<br /><br />You need to find the F and see which direction it is facing.<br /><br /><br />However, the code will only be shown for a short time so you have to be quick! <br />" x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+
+define sketchpad instructions_2
+	set duration 0
+	set description "Displays stimuli"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="If the F is facing to the right you need to press the RIGHT ARROW. <br /><br /><br />If the F is facing to the left you need to press the LEFT ARROW.<br /><br /><br />Got it?<br /><br /><br />Let's practice." x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+
+define sequence instructions_practice
+	set flush_keyboard yes
+	set description "Runs a number of items in sequence"
+	run Intro_1 always
+	run spacebar always
+	run instructions always
+	run spacebar always
+	run instructions_2 always
+	run spacebar always
+	run F always
+	run keyboard1 always
+	run mirror_F always
+	run keyboard2 always
+	run distracters always
+	run spacebar always
+	run easy_trial always
+	run keyboard3 always
+	run difficulty always
+	run spacebar always
+	run difficult_trial always
+	run keyboard5 always
+	run practice_instructions always
+	run spacebar always
+	run practice_loop always
+
+define synth intro_sound
+	set volume 1
+	set pan 0
+	set osc sine
+	set length 350
+	set freq C0
+	set duration sound
+	set description "A basic sound synthesizer"
+	set decay 50
+	set attack 300
+
+define keyboard_response keyboard1
+	set timeout infinite
+	set flush yes
+	set duration keypress
+	set description "Collects keyboard responses"
+	set correct_response RIGHT
+	set allowed_responses RIGHT
+
+define keyboard_response keyboard2
+	set timeout infinite
+	set flush yes
+	set duration keypress
+	set description "Collects keyboard responses"
+	set correct_response LEFT
+	set allowed_responses LEFT
+
+define keyboard_response keyboard3
+	set timeout infinite
+	set flush yes
+	set duration keypress
+	set description "Collects keyboard responses"
+	set correct_response RIGHT
+	set allowed_responses RIGHT
+
+define keyboard_response keyboard4
+	set timeout 2495
+	set flush yes
+	set duration keypress
+	set description "Collects keyboard responses"
+	set allowed_responses "RIGHT; LEFT"
+
+define keyboard_response keyboard4_2
+	set timeout 2495
+	set flush yes
+	set duration keypress
+	set description "Collects keyboard responses"
+	set allowed_responses "RIGHT; LEFT"
+
+define keyboard_response keyboard5
+	set timeout infinite
+	set flush yes
+	set duration keypress
+	set description "Collects keyboard responses"
+	set correct_response RIGHT
+	set allowed_responses RIGHT
+
+define feedback level_down_1
+	set reset_variables yes
+	set duration keypress
+	set description "Provides feedback to the participant"
+	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Unlucky! You only broke [acc]% of the code in the last block.<br /><br /><br />That means that you will return to Level current_level on the next round.<br /><br /><br />See if you can get back up to Level previous_level!" x=0 y=0 z_index=0
+	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [=block] / 24" x=0 y=-256 z_index=0
+	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+
+define feedback level_remain_1
+	set reset_variables yes
+	set duration keypress
+	set description "Provides feedback to the participant"
+	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="You broke [acc]% of the code in the last round<br /> <br />that means you will remain on Level current_level.<br /><br /><br />Keep trying to reach the next Level!" x=0 y=0 z_index=0
+	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [=block] / 24" x=0 y=-256 z_index=0
+	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+
+define feedback level_up_1
+	set reset_variables yes
+	set duration keypress
+	set description "Provides feedback to the participant"
+	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Excellent work!! You broke [acc]% of the code in the last round.<br /><br /><br />Now you are going up to Level current_level!<br /><br /><br />Good luck!" x=0 y=0 z_index=0
+	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [=block] / 24" x=0 y=-256 z_index=0
+	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+
+define sketchpad mask_1
+	set duration 0
+	set description "Displays stimuli"
+	draw rect color="#000000" fill=1 h=768 penwidth=1 show_if=always w=1024 x=-512 y=-384 z_index=1
+	draw textline center=1 color="#ffffff" font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=always text="" x=0 y=0 z_index=0
+	draw image center=1 file="mask-ORIGINAL.bmp" scale=1 show_if=always x=0 y=0 z_index=0
+
+define sketchpad mask_1_2
+	set duration 0
+	set description "Displays stimuli"
+	draw rect color="#000000" fill=1 h=768 penwidth=1 show_if=always w=1024 x=-512 y=-384 z_index=1
+	draw textline center=1 color="#ffffff" font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=always text="" x=0 y=0 z_index=0
+	draw image center=1 file="mask-ORIGINAL.bmp" scale=1 show_if=always x=0 y=0 z_index=0
+
+define sketchpad mirror_F
+	set duration 0
+	set description "Displays stimuli"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="If you see a F pointing to the left like this..." x=0 y=-96 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="You should press the LEFT ARROW.<br /><br /><br />Press that key now." x=0 y=128 z_index=0
+	draw image center=1 file="MirrorF.bmp" scale=1 show_if=always x=0 y=0 z_index=0
+
+define inline_script new_inline_script
+	set description "Executes Python code"
+	set _run ""
+	set _prepare ""
+
+define sequence prac_block_1
+	set flush_keyboard yes
+	set description "Runs a number of items in sequence"
+	run fixation_1_2 always
+	run generate_array_2 always
+	run mask_1_2 always
+	run keyboard4_2 always
+	run Correct_sound_2 "[correct]=1"
+	run Incorrect_sound_2 "[correct]=0"
+	run data_logger always
+
+define sequence practice
+	set flush_keyboard yes
+	set description "Runs a number of items in sequence"
+	run reset_feedback_1 always
+	run practice_block always
+	run practice_success_1 "[acc]=100"
+	run practice_fail_1 "[acc]<100"
+	run spacebar always
+	run repeat_cycle "[acc]<100"
+
+define loop practice_block
+	set source_file ""
+	set source table
+	set skip 0
+	set repeat 8
+	set order random
+	set offset no
+	set item trial_sequence
+	set description "Repeatedly runs another item"
+	set cycles 1
+	set continuous no
+	set column_order ""
+	set break_if_on_first yes
+	set break_if never
+	setcycle 0 empty_column ""
+	run trial_sequence
+
+define feedback practice_fail_1
+	set reset_variables yes
+	set duration 0
+	set description "Provides feedback to the participant"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Unlucky! You failed to break all the code.<br /><br /><br />Try again!<br /><br /><br />Remember: <br /><br /><br />You need to succesfully break all the code to move onto the training." x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+
+define sketchpad practice_instructions
+	set duration 0
+	set description "Displays stimuli"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Have a go at some practice code now.<br /><br /><br />You will need to successfully break all of the code to move onto the training. <br /><br />The practice will reset if you fail to break any of the code.<br /><br /><br />Remember: <br /><br />Press the RIGHT ARROW when the F is pointing to the right.<br /><br />Press the LEFT ARROW when the F is pointing to the left." x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to begin." x=0 y=320 z_index=0
+
+define loop practice_loop
+	set source_file ""
+	set source table
+	set skip 0
+	set repeat 1
+	set order random
+	set offset no
+	set item practice
+	set description "Repeatedly runs another item"
+	set cycles 1
+	set continuous no
+	set column_order practice
+	set break_if_on_first yes
+	set break_if never
+	setcycle 0 practice yes
+	run practice
+
+define feedback practice_success_1
+	set reset_variables yes
+	set duration 0
+	set description "Provides feedback to the participant"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Well Done!<br /><br /><br />You have completed the practice.<br /><br /><br />Now let's break some real code!" x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+
+define repeat_cycle repeat_cycle
+	set description "Optionally repeat a cycle from a loop"
+	set condition "[acc]<1"
+
+define reset_feedback reset_feedback
+	set description "Resets the feedback variables, such as 'avg_rt' and 'acc'"
+
+define reset_feedback reset_feedback_1
+	set description "Resets the feedback variables, such as 'avg_rt' and 'acc'"
+
+define inline_script retrieve_highscore
+	set description "Executes Python code"
+	set _run ""
+	set _prepare "var.highscore = 'highscore'"
+
+define inline_script retrieve_level
+	set description "Retrieve previous level and highscore"
+	set _run ""
+	set _prepare ""
+
+define inline_script retrieve_variables
+	set description "Executes Python code"
+	set _run ""
+	___prepare__
+	# Import csv module
+	import csv
+	
+	# For sessions 2-25
+	if var.session_nr > 1:
+	
+	# Read previous session csv file into a list of lists, with one list per row
+		with open (r'C:\Users\Joff\Documents\OneDrive for Business\OpenSesame\%d-%d.csv' % (var.subject_nr, (var.session_nr - 1)), 'rb') as previous_data:
+			data_reader = csv.reader(previous_data, delimiter=',')
+			contents = [row for row in data_reader]
+	
+	# Make a list of dict items (for each row of data)
+	# with column names from the top of the csv file as keys, 
+	# and the subsequent rows as values
+		col_names = contents[0]
+		stimuli = [dict(zip(col_names, row)) for row in contents[1:]]
+	
+	# Transform stimuli to OpenSesame variables
+		var.set('prev_acc', (stimuli[len(stimuli)-1]['acc']))
+		var.set('prev_rt', (stimuli[len(stimuli)-1]['avg_rt']))
+	
+	# Set default values for session 1 so that it runs
+	# Use 'run if' statements for sketchpad items in actual experiment
+	else:
+		var.set('prev_acc', 'NA')
+		var.set('prev_rt', 'NA')
+	__end__
+
+define inline_script session
+	set description "Creates next available logfile and sets session number"
+	set _run ""
+	___prepare__
+	import os
+	
+	# Close the current logfile
+	log.close()
+	
+	# Check for each session number whether a file called
+	# `[subject nr]-[session nr].csv` already exists, and pick the first session
+	# number which does *not* exist.
+	var.session_nr='session_nr'
+	for var.session_nr in range(1, 1000):
+		path = r'C:\Users\Joff\Documents\OneDrive for Business\OpenSesame\%d-%d.csv' % (var.subject_nr, var.session_nr)
+		if not os.path.exists(path):
+			break
+	print('Using %s' % path)
+	
+	# Open logfile
+	log.open(path)
+	__end__
+
+define keyboard_response spacebar
+	set timeout infinite
+	set flush yes
+	set duration keypress
+	set description "Collects keyboard responses"
+	set correct_response SPACE
+	set allowed_responses SPACE
+
+define keyboard_response spacebar_1
+	set timeout infinite
+	set flush yes
+	set duration keypress
+	set description "Collects keyboard responses"
+	set correct_response SPACE
+	set allowed_responses SPACE
+
+define sketchpad summary
+	set duration 0
+	set description "Displays stimuli"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Well Done! You have completed today's training session.<br /><br /><br />You have now completed current_session training sessions.<br /><br /><br />Remember you need to complete at least 20 training sessions <br /><br />to earn the £10 Amazon voucher.<br /><br /><br />Keep up the good work!" x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to finish today's training." x=0 y=320 z_index=0
+
+define sequence training
+	set flush_keyboard yes
+	set description "Runs a number of items in sequence"
+	run retrieve_level "[session]>1"
+	run welcome always
+	run spacebar always
+	run welcome_1 always
+	run spacebar always
+	run instruct10 "[session]>1"
+	run instruct10_1 "[session]=1"
+	run spacebar always
+	run training_loop always
+
+define loop training_loop
+	set source_file ""
+	set source table
+	set skip 0
+	set repeat 1
+	set order random
+	set offset no
+	set item training_sequence
+	set description "Repeatedly runs another item"
+	set cycles 1
+	set continuous no
+	set column_order ""
+	set break_if_on_first yes
+	set break_if never
+	setcycle 0 empty_column ""
+	run training_sequence
+
+define sequence training_sequence
+	set flush_keyboard yes
+	set description "Runs a number of items in sequence"
+	run reset_feedback always
+	run block_loop always
+	run feedback_sequence always
+
+define sequence trial_sequence
+	set flush_keyboard yes
+	set description "Runs a number of items in sequence"
+	run fixation_1 always
+	run generate_array always
+	run Correct_sound "[correct]=1"
+	run Incorrect_sound "[correct]=0"
+
+define sequence visual_search_training
+	set flush_keyboard yes
+	set description "Runs a number of items in sequence"
+	run session always
+	run retrieve_variables always
+	run Intro always
+	run intro_sound always
+	run spacebar_1 always
+	run practice always
+	run instructions_practice always
+	run training always
+	run end always
+
+define sketchpad welcome
+	set duration 0
+	set description "Displays stimuli"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Welcome to today's training session.<br /><br />Rememeber that your job is to break the code!<br /><br /><br />As you progress through the levels the code will get more difficult. <br /><br />Try to get as far as you can to set a new highscore!" x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+
+define sketchpad welcome_1
+	set duration 0
+	set description "Displays stimuli"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="In each round you will see 24 pieces of code.<br /><br /><br />If you successfully break at least 87.5% of the code <br /><br />you will progress to the next level.<br /><br /><br />If you break at least 75% of the code you will stay on the same level.<br /><br /><br />If you fail to break at least 75% of the code <br /><br />you will go back to the previous level.<br />" x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+
