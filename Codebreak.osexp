@@ -19,7 +19,7 @@ set font_size 20
 set font_italic no
 set font_family mono
 set font_bold no
-set experiment_path "C:/Users/Joff/Documents/GitHub/codebreak"
+set experiment_path "C:/Users/Joff/Documents/OneDrive for Business/OpenSesame"
 set description "Default description"
 set coordinates uniform
 set compensation 0
@@ -30,17 +30,6 @@ set bidi no
 set background black
 
 define synth Correct_sound
-	set volume 1
-	set pan 0
-	set osc sine
-	set length 100
-	set freq 440
-	set duration sound
-	set description "A basic sound synthesizer"
-	set decay 50
-	set attack 50
-
-define synth Correct_sound_2
 	set volume 1
 	set pan 0
 	set osc sine
@@ -69,17 +58,6 @@ define synth Incorrect_sound
 	set decay 50
 	set attack 50
 
-define synth Incorrect_sound_2
-	set volume 0.5
-	set pan 0
-	set osc square
-	set length 100
-	set freq C0
-	set duration sound
-	set description "A basic sound synthesizer"
-	set decay 50
-	set attack 50
-
 define sketchpad Intro
 	set duration 0
 	set description "Displays stimuli"
@@ -96,7 +74,7 @@ define loop block_loop
 	set source_file ""
 	set source table
 	set skip 0
-	set repeat 1
+	set repeat 8
 	set order random
 	set offset no
 	set item trial_sequence
@@ -109,20 +87,36 @@ define loop block_loop
 	setcycle 0 empty_column ""
 	run trial_sequence
 
+define inline_script calculate_highscore
+	set description "Executes Python code"
+	set _run ""
+	set _prepare ""
+
 define inline_script calculate_level
 	set description "Executes Python code"
 	___run__
-	var.highest_level = 'highest_level'
+	# Calculate level
+	if var.acc >= 87:
+		var.level = var.level + 1
+	elif var.acc < 75 and var.level > 1:	
+		var.level = var.level - 1
 	
-	#Calculate block
-	var.block = 'block'
-	block = var.count_block_loop
+	# Set level above
+	var.level_above = 'level_above'
+	var.level_above = var.level + 1
+	
+	# Set highest_level
+	if var.level > var.highest_level:
+		var.highest_level = var.level
+	
+	# Calulate new highscore
+	if var.highest_level > var.highscore:
+		var.highscore = var.highest_level
+		var.new_highscore = 1
+	else:
+		var.new_highscore = 0
 	__end__
 	set _prepare ""
-
-define logger data_logger
-	set description "Logs experimental data"
-	set auto_log yes
 
 define sketchpad difficult_trial
 	set duration 0
@@ -159,9 +153,8 @@ define sketchpad easy_trial
 define sequence end
 	set flush_keyboard yes
 	set description "Runs a number of items in sequence"
-	run retrieve_highscore always
-	run highscore_1 "[highest_level] > [high_score]"
-	run highscore_2 "[highest_level] < [high_score]"
+	run highscore_1 "[new_highscore] = 0"
+	run highscore_2 "[new_highscore] = 1"
 	run spacebar always
 	run summary always
 	run spacebar always
@@ -170,9 +163,9 @@ define sequence feedback_sequence
 	set flush_keyboard yes
 	set description "Runs a number of items in sequence"
 	run calculate_level always
-	run level_down_1 "[acc]<75"
-	run level_remain_1 "75<=[acc] and [acc]<87.5"
-	run level_up_1 "[acc]>=87.5"
+	run level_down_1 "[acc]<74.9"
+	run level_remain_1 "74.9<[acc] and [acc]<86.9"
+	run level_up_1 "[acc]>86.9"
 	run spacebar always
 
 define sketchpad fixation_1
@@ -180,26 +173,29 @@ define sketchpad fixation_1
 	set description "Displays stimuli"
 	draw fixdot color="#00ff00" show_if=always style=default x=0 y=0 z_index=0
 
-define sketchpad fixation_1_2
-	set duration 495
-	set description "Displays stimuli"
-	draw fixdot color="#00ff00" show_if=always style=default x=0 y=0 z_index=0
-
 define inline_script generate_array
 	set description "Generates visual search array"
 	___run__
-	# Show search array canvas for 500ms
+	# Show search array canvas for 500ms, cover with mask and get response
 	t0 = c.show()
-	clock.sleep(500)
-	
-	# Show mask and set keyboard to right,left
+	clock.sleep(495)
 	t1 = mask.show()
+	clock.sleep(2495)
 	var.response, t2 = kb.get_key()
-	var.response_time = t2 - t1
+	var.response_time = t2 - t0
+		
+	# Calculate trial number
+	var.trial = var.trial + 1
+	
+	# Record correct responses and calculate averages
 	if var.response == var.correct_response:
 		var.correct = 1
+		var.total_correct = var.total_correct + 1
 	else:
 		var.correct = 0
+	var.acc = (var.total_correct * 100) / (var.trial)
+	var.total_response_time = var.total_response_time + var.response_time
+	var.avg_rt = (var.total_response_time) / (var.trial)
 		
 	log.write_vars()
 	__end__
@@ -210,9 +206,116 @@ define inline_script generate_array
 	c = canvas(color='green', penwidth=2)
 	print('Canvas size is:', c.size)
 	
-	# Set starting values for col and row variables
-	i = 6
-	j = 6
+	# Calculate i and j based on level
+	if var.level % 2 == 0:
+		i = (var.level + 2) / 2
+		j = (var.level + 2) / 2
+	else:
+		i = (var.level + 3) / 2
+		j = (var.level + 1) / 2
+	
+	print ('i and j are:', i, j)
+	
+	# Create empty list with length i*j
+	search_list = [None]*(i*j)
+	print('Empty search list:', search_list)
+	
+	# Set lists for distractors and targets
+	distractors = ['normal_e', 'mirror_e', 'left_t', 'right_t']
+	targets = ['normal_f', 'mirror_f']
+	
+	# Randomly select distractors to fill search array
+	# and then replace one distractor with a random target
+	for n in range (i*j):
+		search_list[n] = random.choice(distractors)
+	
+	# Set target variable and randomly select a target F to fill a random position
+	# in the array
+	var.target = 'target'
+	var.target = random.choice(targets)
+	search_list[random.randint(0, i*j-1)] = var.target
+	print('The randomised search array is:', search_list)
+	
+	# Set correct_response variable
+	if var.target == 'normal_f':
+		var.correct_response = 'right'
+	elif var.target == 'mirror_f':
+		var.correct_response = 'left'
+		
+	# Create empty search array
+	search_array = xy_grid((i, j), 40)
+	
+	# Combine the stimuli with the search array
+	for z, (x, y) in zip (search_list, search_array):
+		x = x-11
+		y = y-11
+		if z == 'normal_e':
+			c.line(x, y, x, y+20)
+			c.line(x, y, x+12, y)
+			c.line(x, y+10, x+12, y+10)
+			c.line(x, y+20, x+12, y+20)
+		elif z == 'mirror_e':
+			c.line(x+11, y, x+11, y+20)
+			c.line(x, y, x+12, y)
+			c.line(x, y+10, x+12, y+10)
+			c.line(x, y+20, x+12, y+20)
+		elif z == 'right_t':
+			c.line(x, y, x, y+20)
+			c.line(x, y+10, x+12, y+10)
+		elif z == 'left_t':
+			c.line(x+11, y, x+11, y+20)
+			c.line(x, y+10, x+10, y+10)
+		elif z == 'normal_f':
+			c.line(x, y, x, y+20)
+			c.line(x, y, x+12, y)
+			c.line(x, y+10, x+12, y+10)
+		elif z == 'mirror_f':
+			c.line(x+11, y, x+11, y+20)
+			c.line(x, y, x+12, y)
+			c.line(x, y+10, x+10, y+10)
+			
+	# Draw mask canvas
+	mask = canvas()
+	path = r'C:\Users\Joff\Documents\OneDrive for Business\OpenSesame\Code Break Bitmaps\mask-ORIGINAL.bmp'
+	mask.image(path)
+	
+	# Create keyboard object
+	kb = keyboard(keylist=['right', 'left'], timeout=2495)
+	__end__
+
+define inline_script generate_array_1
+	set description "Generates visual search array"
+	___run__
+	# Show search array canvas for 500ms
+	t0 = c.show()
+	clock.sleep(495)
+	
+	# Get key and response time, and show the mask
+	t1 = mask.show()
+	var.response, t2 = kb.get_key()
+	var.response_time = t2 - t0
+	
+	# Calculate trial number
+	var.trial = var.trial + 1
+	
+	# Record correct responses and calculate averages
+	if var.response == var.correct_response:
+		var.correct = 1
+		var.total_correct = var.total_correct + 1
+	else:
+		var.correct = 0
+	var.acc = (var.total_correct * 100) / (var.trial)
+	var.total_response_time = var.total_response_time + var.response_time
+	var.avg_rt = (var.total_response_time) / (var.trial)
+		
+	log.write_vars()
+	__end__
+	___prepare__
+	import random
+	
+	# Create canvas called c
+	c = canvas(color='green', penwidth=2)
+	print('Canvas size is:', c.size)
 	
 	# Create empty list with lenght i*j
 	search_list = [None]*(i*j)
@@ -280,21 +383,16 @@ define inline_script generate_array
 	kb = keyboard(keylist=['right', 'left'], timeout=2495)
 	__end__
 
-define inline_script generate_array_2
-	set description "Generates visual search array"
-	set _run ""
-	set _prepare ""
-
 define sketchpad highscore_1
-	set duration 8000
+	set duration 0
 	set description "Displays stimuli"
-	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="The highest level you achieved this time was Level highest_level.<br /><br /><br />Unlucky! You didn't manage to beat your highscore this time. <br /><br /><br />Try again next time.<br /><br /><br />Your current highscore is Level high_score." x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="The highest level you achieved this session was Level [highest_level].<br /><br /><br />Unlucky! You didn't manage to beat your highscore this time. <br /><br /><br />Try again in the next session!<br /><br /><br />Your current highscore is Level [highscore]." x=0 y=0 z_index=0
 	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
 
 define sketchpad highscore_2
-	set duration 8000
+	set duration 0
 	set description "Displays stimuli"
-	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="The highest level you achieved this time was Level highest_level.<br /><br /><br />!!! Congratulations you achieved a new high score !!!<br /><br /><br />Your new highscore is Level highest_level." x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="The highest level you achieved this time was Level [highest_level].<br /><br /><br />!!! Congratulations you achieved a new high score !!!<br /><br /><br />Your new highscore is Level [highscore]." x=0 y=0 z_index=0
 	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
 
 define sketchpad instruct10
@@ -342,8 +440,6 @@ define sequence instructions_practice
 	run spacebar always
 	run difficult_trial always
 	run keyboard5 always
-	run practice_instructions always
-	run spacebar always
 	run practice_loop always
 
 define synth intro_sound
@@ -381,20 +477,6 @@ define keyboard_response keyboard3
 	set correct_response RIGHT
 	set allowed_responses RIGHT
 
-define keyboard_response keyboard4
-	set timeout 2495
-	set flush yes
-	set duration keypress
-	set description "Collects keyboard responses"
-	set allowed_responses "RIGHT; LEFT"
-
-define keyboard_response keyboard4_2
-	set timeout 2495
-	set flush yes
-	set duration keypress
-	set description "Collects keyboard responses"
-	set allowed_responses "RIGHT; LEFT"
-
 define keyboard_response keyboard5
 	set timeout infinite
 	set flush yes
@@ -404,42 +486,28 @@ define keyboard_response keyboard5
 	set allowed_responses RIGHT
 
 define feedback level_down_1
-	set reset_variables yes
-	set duration keypress
+	set reset_variables no
+	set duration 0
 	set description "Provides feedback to the participant"
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Unlucky! You only broke [acc]% of the code in the last block.<br /><br /><br />That means that you will return to Level current_level on the next round.<br /><br /><br />See if you can get back up to Level previous_level!" x=0 y=0 z_index=0
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [=block] / 24" x=0 y=-256 z_index=0
+	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Unlucky! You only broke [acc]% of the code in the last block.<br /><br /><br />That means that you will return to Level [level] on the next round.<br /><br /><br />See if you can get back up to Level [level_above]!" x=0 y=0 z_index=0
+	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [block_nr] / 24" x=0 y=-256 z_index=0
 	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
 
 define feedback level_remain_1
-	set reset_variables yes
-	set duration keypress
+	set reset_variables no
+	set duration 0
 	set description "Provides feedback to the participant"
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="You broke [acc]% of the code in the last round<br /> <br />that means you will remain on Level current_level.<br /><br /><br />Keep trying to reach the next Level!" x=0 y=0 z_index=0
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [=block] / 24" x=0 y=-256 z_index=0
+	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="You broke [acc]% of the code in the last round<br /> <br />that means you will remain on Level [level].<br /><br /><br />Keep trying to reach Level [level_above]!" x=0 y=0 z_index=0
+	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [block_nr] / 24" x=0 y=-256 z_index=0
 	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
 
 define feedback level_up_1
-	set reset_variables yes
-	set duration keypress
+	set reset_variables no
+	set duration 0
 	set description "Provides feedback to the participant"
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Excellent work!! You broke [acc]% of the code in the last round.<br /><br /><br />Now you are going up to Level current_level!<br /><br /><br />Good luck!" x=0 y=0 z_index=0
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [=block] / 24" x=0 y=-256 z_index=0
+	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Excellent work!! You broke [acc]% of the code in the last round.<br /><br /><br />Now you are going up to Level [level]!<br /><br /><br />Good luck!" x=0 y=0 z_index=0
+	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [block_nr] / 24" x=0 y=-256 z_index=0
 	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
-
-define sketchpad mask_1
-	set duration 0
-	set description "Displays stimuli"
-	draw rect color="#000000" fill=1 h=768 penwidth=1 show_if=always w=1024 x=-512 y=-384 z_index=1
-	draw textline center=1 color="#ffffff" font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=always text="" x=0 y=0 z_index=0
-	draw image center=1 file="mask-ORIGINAL.bmp" scale=1 show_if=always x=0 y=0 z_index=0
-
-define sketchpad mask_1_2
-	set duration 0
-	set description "Displays stimuli"
-	draw rect color="#000000" fill=1 h=768 penwidth=1 show_if=always w=1024 x=-512 y=-384 z_index=1
-	draw textline center=1 color="#ffffff" font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=always text="" x=0 y=0 z_index=0
-	draw image center=1 file="mask-ORIGINAL.bmp" scale=1 show_if=always x=0 y=0 z_index=0
 
 define sketchpad mirror_F
 	set duration 0
@@ -448,31 +516,61 @@ define sketchpad mirror_F
 	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="You should press the LEFT ARROW.<br /><br /><br />Press that key now." x=0 y=128 z_index=0
 	draw image center=1 file="MirrorF.bmp" scale=1 show_if=always x=0 y=0 z_index=0
 
-define inline_script new_inline_script
+define inline_script old_show_array
 	set description "Executes Python code"
 	set _run ""
-	set _prepare ""
+	___prepare__
+	# Show search array canvas for 500ms
+	t0 = c.show()
+	clock.sleep(495)
+	t1 = mask.show()
+	clock.sleep(2495)
+	var.response, t2 = kb.get_key()
+	var.response_time = t2 - t0
+	
+	
+	#### NEW 
+	# Show canvas and initialise t1
+	t0 = c.show()
+	t1 = clock.time()
+	
+	# Sample for the response in a while loop
+	while True:
+		if clock.time() - t0 > 495:
+			t1 = mask.show()
+		elif clock.time() - t1 > 2500:
+			break
+	# If no response given yet, sample for keypress for 10ms
+		if not var.response:
+			var.response, t2 = kb.get_key(timeout = 10)
+			if var.response:
+				var.response_time = t2 - t0
+	__end__
 
-define sequence prac_block_1
-	set flush_keyboard yes
-	set description "Runs a number of items in sequence"
-	run fixation_1_2 always
-	run generate_array_2 always
-	run mask_1_2 always
-	run keyboard4_2 always
-	run Correct_sound_2 "[correct]=1"
-	run Incorrect_sound_2 "[correct]=0"
-	run data_logger always
+define inline_script override_keyboard
+	set description "Executes Python code"
+	___run__
+	while True:
+		if clock.time() - t0 > 495:
+			t1 = mask.show()
+		elif clock.time() - t1 > 2500:
+			break
+		if not var.response:
+			var.response, t2 = kb.get_key(timeout = 10)
+			var.response_time = t2 - t0
+	__end__
+	set _prepare ""
 
 define sequence practice
 	set flush_keyboard yes
 	set description "Runs a number of items in sequence"
-	run reset_feedback_1 always
+	run reset_vars always
+	run practice_instructions always
+	run spacebar always
 	run practice_block always
 	run practice_success_1 "[acc]=100"
 	run practice_fail_1 "[acc]<100"
-	run spacebar always
-	run repeat_cycle "[acc]<100"
+	run repeat_cycle always
 
 define loop practice_block
 	set source_file ""
@@ -488,15 +586,14 @@ define loop practice_block
 	set column_order ""
 	set break_if_on_first yes
 	set break_if never
-	setcycle 0 empty_column ""
+	setcycle 0 practice 1
 	run trial_sequence
 
 define feedback practice_fail_1
 	set reset_variables yes
-	set duration 0
+	set duration 5000
 	set description "Provides feedback to the participant"
-	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Unlucky! You failed to break all the code.<br /><br /><br />Try again!<br /><br /><br />Remember: <br /><br /><br />You need to succesfully break all the code to move onto the training." x=0 y=0 z_index=0
-	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Unlucky! You failed to break all the code.<br /><br /><br /><br />You need to succesfully break all the code to move onto the training.<br /><br /><br /><br />Try again!" x=0 y=0 z_index=0
 
 define sketchpad practice_instructions
 	set duration 0
@@ -521,16 +618,45 @@ define loop practice_loop
 	setcycle 0 practice yes
 	run practice
 
+define loop practice_loop_1
+	set source_file ""
+	set source table
+	set repeat 1
+	set order random
+	set description "Repeatedly runs another item"
+	set cycles 1
+	set continuous no
+	set break_if_on_first yes
+	set break_if never
+	setcycle 0 empty_column ""
+	run practice
+
 define feedback practice_success_1
 	set reset_variables yes
-	set duration 0
+	set duration 5000
 	set description "Provides feedback to the participant"
 	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Well Done!<br /><br /><br />You have completed the practice.<br /><br /><br />Now let's break some real code!" x=0 y=0 z_index=0
-	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
 
 define repeat_cycle repeat_cycle
 	set description "Optionally repeat a cycle from a loop"
-	set condition "[acc]<1"
+	set condition "[acc]<100"
+
+define inline_script reset_exp_vars
+	set description "Executes Python code"
+	set _run ""
+	___prepare__
+	# Reset feedback variables
+	var.total_correct = 0
+	var.total_response_time = 0
+	var.avg_rt = 0
+	var.acc = 0
+	var.trial = 0
+	
+	# Calculate block
+	var.block_nr = var.block_nr + 1
+	if var.block_nr == 1:
+		var.highest_level = var.level
+	__end__
 
 define reset_feedback reset_feedback
 	set description "Resets the feedback variables, such as 'avg_rt' and 'acc'"
@@ -538,10 +664,22 @@ define reset_feedback reset_feedback
 define reset_feedback reset_feedback_1
 	set description "Resets the feedback variables, such as 'avg_rt' and 'acc'"
 
-define inline_script retrieve_highscore
+define inline_script reset_vars
 	set description "Executes Python code"
 	set _run ""
-	set _prepare "var.highscore = 'highscore'"
+	___prepare__
+	# Set trial number and level variables
+	var.trial = 'trial'
+	var.level = 'level'
+	
+	# Reset feedback variables
+	var.total_correct = 0
+	var.total_response_time = 0
+	var.avg_rt = 0
+	var.acc = 0
+	var.trial = 0
+	var.level = 2
+	__end__
 
 define inline_script retrieve_level
 	set description "Retrieve previous level and highscore"
@@ -555,29 +693,83 @@ define inline_script retrieve_variables
 	# Import csv module
 	import csv
 	
-	# For sessions 2-25
-	if var.session_nr > 1:
+	# Set experimental variables
+	var.level = 'level'
+	var.highest_level = 'highest level'
+	var.highscore = 'highscore'
+	var.trial = 'trial'
+	var.block_nr = 'block'
+	var.block_nr = 0
 	
+	#### NEW !!!!!
+	# For sessions 2-25 open most recent session, if data exists
+	if var.session_nr > 1:
+		for s in range(1, 1000):
+			try:
 	# Read previous session csv file into a list of lists, with one list per row
+				with open (r'C:\Users\Joff\Documents\OneDrive for Business\OpenSesame\%d-%d.csv' % (var.subject_nr, (var.session_nr - s)), 'rb') as previous_data:
+					data_reader = csv.reader(previous_data, delimiter=',')
+					contents = [row for row in data_reader]
+	# Make a list of dict items (for each row of data)
+	# with column names from the top of the csv file as keys, 
+	# and the subsequent rows as values
+					col_names = contents[0]
+					stimuli = [dict(zip(col_names, row)) for row in contents[1:]]
+				break
+			except (IndexError):
+				continue
+				
+	# Transform stimuli to OpenSesame variables
+		var.highscore = (stimuli[len(stimuli)-1]['highscore'])
+		var.acc = (stimuli[len(stimuli)-1]['acc'])
+		var.level = (stimuli[len(stimuli)-1]['level'])
+		# Calculate level on previous accuracy
+		if var.acc >= 87:
+			var.level = var.level + 1
+		elif var.acc < 75 and var.level > 1:	
+			var.level = var.level - 1
+	
+	# For session 1 set default values	
+	else:
+		var.level = 1
+		var.highest_level = 1
+		var.highscore = 1
+	__end__
+
+define inline_script retrieve_variables_1
+	set description "Executes Python code"
+	set _run ""
+	___prepare__
+	# Import csv module
+	import csv
+	
+	# Set experimental variables
+	var.level = 'level'
+	var.highest_level = 'highest level'
+	var.highscore = 'highscore'
+	var.trial = 'trial'
+	var.block_nr = 'block'
+	var.block_nr = 0
+	
+	# For sessions 2-25
+	if var.session_nr > 1:# Read previous session csv file into a list of lists, with one list per row
 		with open (r'C:\Users\Joff\Documents\OneDrive for Business\OpenSesame\%d-%d.csv' % (var.subject_nr, (var.session_nr - 1)), 'rb') as previous_data:
 			data_reader = csv.reader(previous_data, delimiter=',')
 			contents = [row for row in data_reader]
 	
-	# Make a list of dict items (for each row of data)
-	# with column names from the top of the csv file as keys, 
-	# and the subsequent rows as values
-		col_names = contents[0]
-		stimuli = [dict(zip(col_names, row)) for row in contents[1:]]
 	
-	# Transform stimuli to OpenSesame variables
-		var.set('prev_acc', (stimuli[len(stimuli)-1]['acc']))
-		var.set('prev_rt', (stimuli[len(stimuli)-1]['avg_rt']))
-	
-	# Set default values for session 1 so that it runs
-	# Use 'run if' statements for sketchpad items in actual experiment
-	else:
-		var.set('prev_acc', 'NA')
-		var.set('prev_rt', 'NA')
+	#### NEW !!!!!
+	# For sessions 2-25 open most recent session, if data exists
+	if var.session_nr > 1:
+		for s in range(1, 1000):
+			try:
+	# Read previous session csv file into a list of lists, with one list per row
+				with open (r'C:\Users\Joff\Documents\OneDrive for Business\OpenSesame\%d-%d.csv' % (var.subject_nr, (var.session_nr - s)), 'rb') as previous_data:
+					data_reader = csv.reader(previous_data, delimiter=',')
+					contents = [row for row in data_reader]
+				break
+			except IndexError:
+				continue
 	__end__
 
 define inline_script session
@@ -608,21 +800,12 @@ define keyboard_response spacebar
 	set flush yes
 	set duration keypress
 	set description "Collects keyboard responses"
-	set correct_response SPACE
-	set allowed_responses SPACE
-
-define keyboard_response spacebar_1
-	set timeout infinite
-	set flush yes
-	set duration keypress
-	set description "Collects keyboard responses"
-	set correct_response SPACE
 	set allowed_responses SPACE
 
 define sketchpad summary
 	set duration 0
 	set description "Displays stimuli"
-	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Well Done! You have completed today's training session.<br /><br /><br />You have now completed current_session training sessions.<br /><br /><br />Remember you need to complete at least 20 training sessions <br /><br />to earn the £10 Amazon voucher.<br /><br /><br />Keep up the good work!" x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Well Done! You have completed today's training session.<br /><br /><br />You have now completed [session_nr] training sessions.<br /><br /><br />Remember you need to complete at least 20 training sessions <br /><br />to earn the £10 Amazon voucher.<br /><br /><br />Keep up the good work!" x=0 y=0 z_index=0
 	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to finish today's training." x=0 y=320 z_index=0
 
 define sequence training
@@ -642,7 +825,7 @@ define loop training_loop
 	set source_file ""
 	set source table
 	set skip 0
-	set repeat 1
+	set repeat 4
 	set order random
 	set offset no
 	set item training_sequence
@@ -658,7 +841,7 @@ define loop training_loop
 define sequence training_sequence
 	set flush_keyboard yes
 	set description "Runs a number of items in sequence"
-	run reset_feedback always
+	run reset_exp_vars always
 	run block_loop always
 	run feedback_sequence always
 
@@ -677,8 +860,7 @@ define sequence visual_search_training
 	run retrieve_variables always
 	run Intro always
 	run intro_sound always
-	run spacebar_1 always
-	run practice always
+	run spacebar always
 	run instructions_practice always
 	run training always
 	run end always
