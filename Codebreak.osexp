@@ -113,7 +113,7 @@ define loop block_loop_1
 	set source_file ""
 	set source table
 	set skip 0
-	set repeat 8
+	set repeat 4
 	set order random
 	set offset no
 	set item trial_sequence
@@ -218,7 +218,7 @@ define sketchpad easy_trial
 define sequence end
 	set flush_keyboard yes
 	set description "Runs a number of items in sequence"
-	run highscore_1 "[new_highscore] = 0"
+	run highscore_11 always
 	run highscore_2 "[new_highscore] = 1"
 	run spacebar always
 	run summary always
@@ -472,7 +472,7 @@ define inline_script generate_array_2
 	clock.sleep(2495)
 	var.response, t2 = kb.get_key()
 	var.response_time = t2 - t0
-		
+	
 	# Calculate trial number
 	var.trial = var.trial + 1
 	
@@ -578,6 +578,12 @@ define sketchpad highscore_1
 	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="The highest level you achieved this session was Level [highest_level].<br /><br /><br />Unlucky! You didn't manage to beat your highscore this time. <br /><br /><br />Try again in the next session!<br /><br /><br />Your current highscore is Level [highscore]." x=0 y=0 z_index=0
 	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
 
+define sketchpad highscore_11
+	set duration keypress
+	set description "Displays stimuli"
+	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="The highest level you achieved this session was Level [highest_level].<br /><br /><br />Unlucky! You didn't manage to beat your highscore this time. <br /><br /><br />Try again in the next session!<br /><br /><br />Your current highscore is Level [highscore]." x=0 y=0 z_index=0
+	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+
 define sketchpad highscore_2
 	set duration 0
 	set description "Displays stimuli"
@@ -587,7 +593,7 @@ define sketchpad highscore_2
 define sketchpad instruct10
 	set duration keypress
 	set description "Present previous level and highscore if not the 1st training session"
-	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="The highest level you have achieved so far is Level highest_level. <br /><br />See if you can beat your highscore this time!<br /><br />We will start where you finished last time, which was Level previous_level. <br /><br /><br /><br />Remember:<br /><br />If the F is facing to the right, press the RIGHT ARROW.<br /><br />If the F is facing to the left, press the LEFT ARROW.<br /><br /><br />Good Luck!<br /><br />" x=0 y=32 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="The highest level you have achieved so far is Level [highscore]. <br /><br />See if you can beat your highscore this time!<br /><br />We will start where you finished last time, which was Level [level]. <br /><br /><br /><br />Remember:<br /><br />If the F is facing to the right, press the RIGHT ARROW.<br /><br />If the F is facing to the left, press the LEFT ARROW.<br /><br /><br />Good Luck!<br /><br />" x=0 y=32 z_index=0
 	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to start today's training session." x=0 y=320 z_index=0
 
 define sketchpad instruct10_1
@@ -846,7 +852,7 @@ define loop practice_loop_1
 
 define feedback practice_success_1
 	set reset_variables yes
-	set duration 5000
+	set duration 10000
 	set description "Provides feedback to the participant"
 	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Well Done!<br /><br /><br />You have completed the practice.<br /><br /><br />Now let's break some real code!" x=0 y=0 z_index=0
 
@@ -927,6 +933,7 @@ define inline_script retrieve_variables
 	var.level = 'level'
 	var.highest_level = 'highest level'
 	var.highscore = 'highscore'
+	var.new_highscore = 'new_highscore'
 	var.trial = 'trial'
 	var.block_nr = 'block'
 	var.block_nr = 0
@@ -957,6 +964,7 @@ define inline_script retrieve_variables
 		var.highscore = (stimuli[len(stimuli)-1]['highscore'])
 		var.acc = (stimuli[len(stimuli)-1]['acc'])
 		var.level = (stimuli[len(stimuli)-1]['level'])
+		var.highest_level = (stimuli[len(stimuli)-1]['level'])
 		# Calculate level on previous accuracy
 		if var.acc >= 87:
 			var.level = var.level + 1
@@ -966,8 +974,8 @@ define inline_script retrieve_variables
 	# For session 1 set default values	
 	else:
 		var.level = 1
-		var.highest_level = 1
-		var.highscore = 1
+		var.highest_level = None
+		var.highscore = None
 	__end__
 
 define inline_script retrieve_variables_1
@@ -1046,27 +1054,25 @@ define keyboard_response spacebar_1
 define sketchpad summary
 	set duration 0
 	set description "Displays stimuli"
-	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Well Done! You have completed today's training session.<br /><br /><br />You have now completed [session_nr] training sessions.<br /><br /><br />Remember you need to complete at least 20 training sessions <br /><br />to earn the £10 Amazon voucher.<br /><br /><br />Keep up the good work!" x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Well Done! You have completed today's training session.<br /><br /><br />You have now completed [session_nr] training sessions.<br /><br /><br />Remember you need to complete at least 20 training sessions <br /><br />to earn the £15 Amazon voucher.<br /><br /><br />Keep up the good work!" x=0 y=0 z_index=0
 	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to finish today's training." x=0 y=320 z_index=0
 
 define sequence training
 	set flush_keyboard yes
 	set description "Runs a number of items in sequence"
-	run retrieve_level "[session]>1"
 	run welcome always
 	run spacebar always
 	run welcome_1 always
 	run spacebar always
-	run instruct10 "[session]>1"
-	run instruct10_1 "[session]=1"
+	run instruct10 "[session_nr]>1"
+	run instruct10_1 "[session_nr]=1"
 	run spacebar always
 	run training_loop always
 
 define loop training_loop
-	set source_file ""
 	set source table
 	set skip 0
-	set repeat 4
+	set repeat 1
 	set order random
 	set offset no
 	set item training_sequence
@@ -1077,7 +1083,7 @@ define loop training_loop
 	set break_if_on_first yes
 	set break_if never
 	setcycle 0 empty_column ""
-	run training_sequence
+	run training_sequence_1
 
 define loop training_loop_1
 	set source_file ""
@@ -1094,7 +1100,7 @@ define loop training_loop_1
 	set break_if_on_first yes
 	set break_if never
 	setcycle 0 empty_column ""
-	run training_sequence_1
+	run training_sequence
 
 define sequence training_sequence
 	set flush_keyboard yes
@@ -1134,8 +1140,7 @@ define sequence visual_search_training
 	run Intro always
 	run intro_sound always
 	run spacebar always
-	run training_loop_1 always
-	run instructions_practice always
+	run instructions_practice "[session_nr]=1"
 	run training always
 	run end always
 
@@ -1148,6 +1153,6 @@ define sketchpad welcome
 define sketchpad welcome_1
 	set duration 0
 	set description "Displays stimuli"
-	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="In each round you will see 24 pieces of code.<br /><br /><br />If you successfully break at least 87.5% of the code <br /><br />you will progress to the next level.<br /><br /><br />If you break at least 75% of the code you will stay on the same level.<br /><br /><br />If you fail to break at least 75% of the code <br /><br />you will go back to the previous level.<br />" x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="In each round you will see 24 pieces of code.<br /><br /><br />If you successfully break at least 87% of the code <br /><br />you will progress to the next level.<br /><br /><br />If you break at least 75% of the code you will stay on the same level.<br /><br /><br />If you fail to break at least 75% of the code <br /><br />you will go back to the previous level.<br />" x=0 y=0 z_index=0
 	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
 
