@@ -110,10 +110,9 @@ define loop block_loop
 	run trial_sequence
 
 define loop block_loop_1
-	set source_file ""
 	set source table
 	set skip 0
-	set repeat 4
+	set repeat 24
 	set order random
 	set offset no
 	set item trial_sequence
@@ -218,8 +217,8 @@ define sketchpad easy_trial
 define sequence end
 	set flush_keyboard yes
 	set description "Runs a number of items in sequence"
-	run highscore_11 always
-	run highscore_2 "[new_highscore] = 1"
+	run highscores1 "[new_highscore] = 0"
+	run highscores2 "[new_highscore] = 1"
 	run spacebar always
 	run summary always
 	run spacebar always
@@ -282,7 +281,7 @@ define inline_script generate_array
 	import random
 	
 	# Create canvas called c
-	c = canvas(color='green', penwidth=2)
+	c = canvas(color='#00ff00', penwidth=2)
 	print('Canvas size is:', c.size)
 	
 	# Calculate i and j based on level
@@ -355,7 +354,7 @@ define inline_script generate_array
 			
 	# Draw mask canvas
 	mask = canvas()
-	path = r'C:\Users\Joff\Documents\OneDrive for Business\OpenSesame\Code Break Bitmaps\mask-ORIGINAL.bmp'
+	path = pool['mask-ORIGINAL.bmp']
 	mask.image(path)
 	
 	# Create keyboard object
@@ -590,8 +589,22 @@ define sketchpad highscore_2
 	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="The highest level you achieved this time was Level [highest_level].<br /><br /><br />!!! Congratulations you achieved a new high score !!!<br /><br /><br />Your new highscore is Level [highscore]." x=0 y=0 z_index=0
 	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
 
+define feedback highscores1
+	set reset_variables yes
+	set duration 1000
+	set description "Provides feedback to the participant"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="The highest level you achieved this session was Level [highest_level].<br /><br /><br />Unlucky! You didn't manage to beat your highscore this time. <br /><br /><br />Try again in the next session!<br /><br /><br />Your current highscore is Level [highscore]." x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+
+define feedback highscores2
+	set reset_variables yes
+	set duration 1000
+	set description "Provides feedback to the participant"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="The highest level you achieved this time was Level [highest_level].<br /><br /><br />!!! CONGRATUALATIONS YOU ACHIEVED A NEW HIGH SCORE !!!<br /><br /><br />Your new highscore is Level [highscore]." x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+
 define sketchpad instruct10
-	set duration keypress
+	set duration 0
 	set description "Present previous level and highscore if not the 1st training session"
 	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="The highest level you have achieved so far is Level [highscore]. <br /><br />See if you can beat your highscore this time!<br /><br />We will start where you finished last time, which was Level [level]. <br /><br /><br /><br />Remember:<br /><br />If the F is facing to the right, press the RIGHT ARROW.<br /><br />If the F is facing to the left, press the LEFT ARROW.<br /><br /><br />Good Luck!<br /><br />" x=0 y=32 z_index=0
 	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to start today's training session." x=0 y=320 z_index=0
@@ -692,9 +705,9 @@ define feedback level_down_1_1
 	set reset_variables no
 	set duration 0
 	set description "Provides feedback to the participant"
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Unlucky! You only broke [acc]% of the code in the last block.<br /><br /><br />That means that you will return to Level [level] on the next round.<br /><br /><br />See if you can get back up to Level [level_above]!" x=0 y=0 z_index=0
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [block_nr] / 24" x=0 y=-256 z_index=0
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Unlucky! You only broke [acc]% of the code in the last block.<br /><br /><br />That means that you will return to Level [level] on the next round.<br /><br /><br />See if you can get back up to Level [level_above]!" x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [block_nr] / 20" x=0 y=-256 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
 
 define feedback level_remain_1
 	set reset_variables no
@@ -708,9 +721,9 @@ define feedback level_remain_1_1
 	set reset_variables no
 	set duration 0
 	set description "Provides feedback to the participant"
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="You broke [acc]% of the code in the last round<br /> <br />that means you will remain on Level [level].<br /><br /><br />Keep trying to reach Level [level_above]!" x=0 y=0 z_index=0
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [block_nr] / 24" x=0 y=-256 z_index=0
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="You broke [acc]% of the code in the last round<br /> <br />that means you will remain on Level [level].<br /><br /><br />Keep trying to reach Level [level_above]!" x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [block_nr] / 20" x=0 y=-256 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
 
 define feedback level_up_1
 	set reset_variables no
@@ -724,9 +737,9 @@ define feedback level_up_1_1
 	set reset_variables no
 	set duration 0
 	set description "Provides feedback to the participant"
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Excellent work!! You broke [acc]% of the code in the last round.<br /><br /><br />Now you are going up to Level [level]!<br /><br /><br />Good luck!" x=0 y=0 z_index=0
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [block_nr] / 24" x=0 y=-256 z_index=0
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Excellent work!! You broke [acc]% of the code in the last round.<br /><br /><br />Now you are going up to Level [level]!<br /><br /><br />Good luck!" x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [block_nr] / 20" x=0 y=-256 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
 
 define sketchpad mirror_F
 	set duration 0
@@ -792,7 +805,6 @@ define sequence practice
 	run repeat_cycle always
 
 define loop practice_block
-	set source_file ""
 	set source table
 	set skip 0
 	set repeat 8
@@ -805,7 +817,7 @@ define loop practice_block
 	set column_order ""
 	set break_if_on_first yes
 	set break_if never
-	setcycle 0 practice 1
+	setcycle 0 empty_column ""
 	run trial_sequence
 
 define feedback practice_fail_1
@@ -817,11 +829,10 @@ define feedback practice_fail_1
 define sketchpad practice_instructions
 	set duration 0
 	set description "Displays stimuli"
-	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Have a go at some practice code now.<br /><br /><br />You will need to successfully break all of the code to move onto the training. <br /><br />The practice will reset if you fail to break any of the code.<br /><br /><br />Remember: <br /><br />Press the RIGHT ARROW when the F is pointing to the right.<br /><br />Press the LEFT ARROW when the F is pointing to the left." x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Have a go at some practice code now.<br /><br /><br />You will need to successfully break all of the code to move onto the training. <br /><br />Otherwise the practice will restart.<br /><br /><br />Remember: <br /><br />Press the RIGHT ARROW when the F is pointing to the right.<br /><br />Press the LEFT ARROW when the F is pointing to the left." x=0 y=0 z_index=0
 	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to begin." x=0 y=320 z_index=0
 
 define loop practice_loop
-	set source_file ""
 	set source table
 	set skip 0
 	set repeat 1
@@ -938,7 +949,6 @@ define inline_script retrieve_variables
 	var.block_nr = 'block'
 	var.block_nr = 0
 	
-	#### NEW !!!!!
 	# For sessions 2-25 open most recent session, if data exists
 	if var.session_nr > 1:
 		for s in range(1, 1000):
@@ -958,24 +968,33 @@ define inline_script retrieve_variables
 			except (IOError):
 				var.session_nr = 1
 				break
-				
+	
 	# Transform stimuli to OpenSesame variables
 	if var.session_nr > 1:
 		var.highscore = (stimuli[len(stimuli)-1]['highscore'])
 		var.acc = (stimuli[len(stimuli)-1]['acc'])
 		var.level = (stimuli[len(stimuli)-1]['level'])
 		var.highest_level = (stimuli[len(stimuli)-1]['level'])
+		
 		# Calculate level on previous accuracy
 		if var.acc >= 87:
 			var.level = var.level + 1
 		elif var.acc < 75 and var.level > 1:	
 			var.level = var.level - 1
+		
+		# Set highest_level
+		if var.level > var.highest_level:
+			var.highest_level = var.level
+	
+		# Calulate new highscore
+		if var.highest_level > var.highscore:
+			var.highscore = var.highest_level
 	
 	# For session 1 set default values	
 	else:
 		var.level = 1
-		var.highest_level = None
-		var.highscore = None
+		var.highest_level = 1
+		var.highscore = 1
 	__end__
 
 define inline_script retrieve_variables_1
@@ -1072,17 +1091,18 @@ define sequence training
 define loop training_loop
 	set source table
 	set skip 0
-	set repeat 1
+	set repeat 4
 	set order random
 	set offset no
 	set item training_sequence
 	set description "Repeatedly runs another item"
-	set cycles 1
+	set cycles 2
 	set continuous no
 	set column_order ""
 	set break_if_on_first yes
 	set break_if never
 	setcycle 0 empty_column ""
+	setcycle 1 empty_column ""
 	run training_sequence_1
 
 define loop training_loop_1
