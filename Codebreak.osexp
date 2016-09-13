@@ -14,12 +14,12 @@ set sampler_backend legacy
 set mouse_backend legacy
 set keyboard_backend legacy
 set height 768
-set foreground green
+set foreground "#00ff00"
 set font_size 20
 set font_italic no
 set font_family mono
 set font_bold no
-set experiment_path "C:/Users/Joff/Documents/OneDrive for Business/OpenSesame"
+set experiment_path "C:/Users/Joff/Documents/GitHub/codebreak"
 set description "Default description"
 set coordinates uniform
 set compensation 0
@@ -110,10 +110,9 @@ define loop block_loop
 	run trial_sequence
 
 define loop block_loop_1
-	set source_file ""
 	set source table
 	set skip 0
-	set repeat 4
+	set repeat 24
 	set order random
 	set offset no
 	set item trial_sequence
@@ -218,8 +217,8 @@ define sketchpad easy_trial
 define sequence end
 	set flush_keyboard yes
 	set description "Runs a number of items in sequence"
-	run highscore_11 always
-	run highscore_2 "[new_highscore] = 1"
+	run highscore1 "[new_highscore]=0"
+	run highscore2 "[new_highscore]=1"
 	run spacebar always
 	run summary always
 	run spacebar always
@@ -269,10 +268,10 @@ define inline_script generate_array
 	# Record correct responses and calculate averages
 	if var.response == var.correct_response:
 		var.correct = 1
-		var.total_correct = var.total_correct + 1
+		var.tot_correct = var.tot_correct + 1
 	else:
 		var.correct = 0
-	var.acc = (var.total_correct * 100) / (var.trial)
+	var.acc = (var.tot_correct * 100) / (var.trial)
 	var.total_response_time = var.total_response_time + var.response_time
 	var.avg_rt = (var.total_response_time) / (var.trial)
 		
@@ -380,10 +379,10 @@ define inline_script generate_array_1
 	# Record correct responses and calculate averages
 	if var.response == var.correct_response:
 		var.correct = 1
-		var.total_correct = var.total_correct + 1
+		var.tot_correct = var.tot_correct + 1
 	else:
 		var.correct = 0
-	var.acc = (var.total_correct * 100) / (var.trial)
+	var.acc = (var.tot_correct * 100) / (var.trial)
 	var.total_response_time = var.total_response_time + var.response_time
 	var.avg_rt = (var.total_response_time) / (var.trial)
 		
@@ -479,10 +478,10 @@ define inline_script generate_array_2
 	# Record correct responses and calculate averages
 	if var.response == var.correct_response:
 		var.correct = 1
-		var.total_correct = var.total_correct + 1
+		var.tot_correct = var.tot_correct + 1
 	else:
 		var.correct = 0
-	var.acc = (var.total_correct * 100) / (var.trial)
+	var.acc = (var.tot_correct * 100) / (var.trial)
 	var.total_response_time = var.total_response_time + var.response_time
 	var.avg_rt = (var.total_response_time) / (var.trial)
 		
@@ -492,7 +491,7 @@ define inline_script generate_array_2
 	import random
 	
 	# Create canvas called c
-	c = canvas(color='green', penwidth=2)
+	c = canvas(color='#00ff00', penwidth=2)
 	print('Canvas size is:', c.size)
 	
 	# Calculate i and j based on level
@@ -565,12 +564,26 @@ define inline_script generate_array_2
 			
 	# Draw mask canvas
 	mask = canvas()
-	path = r'C:\Users\Joff\Documents\OneDrive for Business\OpenSesame\Code Break Bitmaps\mask-ORIGINAL.bmp'
+	path = pool['mask-ORIGINAL.bmp']
 	mask.image(path)
 	
 	# Create keyboard object
 	kb = keyboard(keylist=['right', 'left'], timeout=2495)
 	__end__
+
+define feedback highscore1
+	set reset_variables yes
+	set duration 0
+	set description "Provides feedback to the participant"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="The highest level you achieved this session was Level [highest_level].<br /><br /><br />Unlucky! You didn't manage to beat your highscore this time. <br /><br /><br />Try again in the next session!<br /><br /><br />Your current highscore is Level [highscore]." x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+
+define feedback highscore2
+	set reset_variables yes
+	set duration 0
+	set description "Provides feedback to the participant"
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="The highest level you achieved this time was Level [highest_level].<br /><br /><br />!!! Congratulations you achieved a new high score !!!<br /><br /><br />Your new highscore is Level [highscore]." x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
 
 define sketchpad highscore_1
 	set duration 0
@@ -692,9 +705,9 @@ define feedback level_down_1_1
 	set reset_variables no
 	set duration 0
 	set description "Provides feedback to the participant"
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Unlucky! You only broke [acc]% of the code in the last block.<br /><br /><br />That means that you will return to Level [level] on the next round.<br /><br /><br />See if you can get back up to Level [level_above]!" x=0 y=0 z_index=0
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [block_nr] / 24" x=0 y=-256 z_index=0
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Unlucky! You only broke [acc]% of the code in the last block.<br /><br /><br />That means that you will return to Level [level] on the next round.<br /><br /><br />See if you can get back up to Level [level_above]!" x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [block_nr] / 24" x=0 y=-256 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
 
 define feedback level_remain_1
 	set reset_variables no
@@ -708,9 +721,9 @@ define feedback level_remain_1_1
 	set reset_variables no
 	set duration 0
 	set description "Provides feedback to the participant"
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="You broke [acc]% of the code in the last round<br /> <br />that means you will remain on Level [level].<br /><br /><br />Keep trying to reach Level [level_above]!" x=0 y=0 z_index=0
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [block_nr] / 24" x=0 y=-256 z_index=0
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="You broke [acc]% of the code in the last round<br /> <br />that means you will remain on Level [level].<br /><br /><br />Keep trying to reach Level [level_above]!" x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [block_nr] / 24" x=0 y=-256 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
 
 define feedback level_up_1
 	set reset_variables no
@@ -724,9 +737,9 @@ define feedback level_up_1_1
 	set reset_variables no
 	set duration 0
 	set description "Provides feedback to the participant"
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Excellent work!! You broke [acc]% of the code in the last round.<br /><br /><br />Now you are going up to Level [level]!<br /><br /><br />Good luck!" x=0 y=0 z_index=0
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [block_nr] / 24" x=0 y=-256 z_index=0
-	draw textline center=1 color=green font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Excellent work!! You broke [acc]% of the code in the last round.<br /><br /><br />Now you are going up to Level [level]!<br /><br /><br />Good luck!" x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Round: [block_nr] / 24" x=0 y=-256 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
 
 define sketchpad mirror_F
 	set duration 0
@@ -865,7 +878,7 @@ define inline_script reset_exp_vars
 	set _run ""
 	___prepare__
 	# Reset feedback variables
-	var.total_correct = 0
+	var.tot_correct = 0
 	var.total_response_time = 0
 	var.avg_rt = 0
 	var.acc = 0
@@ -882,7 +895,7 @@ define inline_script reset_exp_vars_1
 	set _run ""
 	___prepare__
 	# Reset feedback variables
-	var.total_correct = 0
+	var.tot_correct = 0
 	var.total_response_time = 0
 	var.avg_rt = 0
 	var.acc = 0
@@ -902,19 +915,20 @@ define reset_feedback reset_feedback_1
 
 define inline_script reset_vars
 	set description "Executes Python code"
-	set _run ""
-	___prepare__
-	# Set trial number and level variables
-	var.trial = 'trial'
-	var.level = 'level'
-	
+	___run__
 	# Reset feedback variables
-	var.total_correct = 0
+	var.correct = 0
+	var.tot_correct = 0
 	var.total_response_time = 0
 	var.avg_rt = 0
 	var.acc = 0
 	var.trial = 0
 	var.level = 2
+	__end__
+	___prepare__
+	# Set trial number and level variables
+	var.trial = 'trial'
+	var.level = 'level'
 	__end__
 
 define inline_script retrieve_level
@@ -964,13 +978,14 @@ define inline_script retrieve_variables
 		var.highscore = (stimuli[len(stimuli)-1]['highscore'])
 		var.acc = (stimuli[len(stimuli)-1]['acc'])
 		var.level = (stimuli[len(stimuli)-1]['level'])
-		var.highest_level = (stimuli[len(stimuli)-1]['level'])
+		
 		# Calculate level on previous accuracy
 		if var.acc >= 87:
 			var.level = var.level + 1
 		elif var.acc < 75 and var.level > 1:	
 			var.level = var.level - 1
-	
+		var.highest_level = var.level
+			
 	# For session 1 set default values	
 	else:
 		var.level = 1
@@ -1072,7 +1087,7 @@ define sequence training
 define loop training_loop
 	set source table
 	set skip 0
-	set repeat 1
+	set repeat 20
 	set order random
 	set offset no
 	set item training_sequence
