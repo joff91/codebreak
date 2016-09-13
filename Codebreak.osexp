@@ -19,7 +19,7 @@ set font_size 20
 set font_italic no
 set font_family mono
 set font_bold no
-set experiment_path "C:/Users/Joff/Documents/GitHub/codebreak"
+set experiment_path "C:/Users/Joff/Documents/OneDrive for Business/OpenSesame"
 set description "Default description"
 set coordinates uniform
 set compensation 0
@@ -112,7 +112,7 @@ define loop block_loop
 define loop block_loop_1
 	set source table
 	set skip 0
-	set repeat 24
+	set repeat 4
 	set order random
 	set offset no
 	set item trial_sequence
@@ -281,7 +281,7 @@ define inline_script generate_array
 	import random
 	
 	# Create canvas called c
-	c = canvas(color='green', penwidth=2)
+	c = canvas(color='#00ff00', penwidth=2)
 	print('Canvas size is:', c.size)
 	
 	# Calculate i and j based on level
@@ -604,7 +604,7 @@ define sketchpad highscore_2
 	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
 
 define sketchpad instruct10
-	set duration keypress
+	set duration 0
 	set description "Present previous level and highscore if not the 1st training session"
 	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="The highest level you have achieved so far is Level [highscore]. <br /><br />See if you can beat your highscore this time!<br /><br />We will start where you finished last time, which was Level [level]. <br /><br /><br /><br />Remember:<br /><br />If the F is facing to the right, press the RIGHT ARROW.<br /><br />If the F is facing to the left, press the LEFT ARROW.<br /><br /><br />Good Luck!<br /><br />" x=0 y=32 z_index=0
 	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to start today's training session." x=0 y=320 z_index=0
@@ -952,7 +952,6 @@ define inline_script retrieve_variables
 	var.block_nr = 'block'
 	var.block_nr = 0
 	
-	#### NEW !!!!!
 	# For sessions 2-25 open most recent session, if data exists
 	if var.session_nr > 1:
 		for s in range(1, 1000):
@@ -985,6 +984,8 @@ define inline_script retrieve_variables
 		elif var.acc < 75 and var.level > 1:	
 			var.level = var.level - 1
 		var.highest_level = var.level
+		if var.level > var.highscore:
+			var.highscore = var.level
 			
 	# For session 1 set default values	
 	else:
@@ -1087,7 +1088,7 @@ define sequence training
 define loop training_loop
 	set source table
 	set skip 0
-	set repeat 20
+	set repeat 4
 	set order random
 	set offset no
 	set item training_sequence
@@ -1135,7 +1136,7 @@ define sequence trial_sequence
 	set flush_keyboard yes
 	set description "Runs a number of items in sequence"
 	run fixation_1 always
-	run generate_array always
+	run generate_array_2 always
 	run Correct_sound "[correct]=1"
 	run Incorrect_sound "[correct]=0"
 
