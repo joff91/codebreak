@@ -112,7 +112,7 @@ define loop block_loop
 define loop block_loop_1
 	set source table
 	set skip 0
-	set repeat 4
+	set repeat 24
 	set order random
 	set offset no
 	set item trial_sequence
@@ -847,7 +847,7 @@ define loop practice_loop
 	set column_order practice
 	set break_if_on_first yes
 	set break_if never
-	setcycle 0 practice yes
+	setcycle 0 empty_column ""
 	run practice
 
 define loop practice_loop_1
@@ -1088,7 +1088,7 @@ define sequence training
 define loop training_loop
 	set source table
 	set skip 0
-	set repeat 4
+	set repeat 20
 	set order random
 	set offset no
 	set item training_sequence
@@ -1163,7 +1163,7 @@ define sequence visual_search_training
 define sketchpad welcome
 	set duration 0
 	set description "Displays stimuli"
-	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Welcome to today's training session.<br /><br />Rememeber that your job is to break the code!<br /><br /><br />As you progress through the levels the code will get more difficult. <br /><br />Try to get as far as you can to set a new highscore!" x=0 y=0 z_index=0
+	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Welcome to today's training session.<br /><br />Remember that your job is to break the code!<br /><br /><br />As you progress through the levels the code will get more difficult. <br /><br />Try to get as far as you can to set a new highscore!" x=0 y=0 z_index=0
 	draw textline center=1 color="#00ff00" font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Press SPACE to continue." x=0 y=320 z_index=0
 
 define sketchpad welcome_1
